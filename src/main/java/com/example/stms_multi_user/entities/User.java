@@ -22,6 +22,9 @@ public class User extends AuditableEntity {
     private String email;
 
     @Column(nullable = false)
+    private String firstName;
+    
+    @Column(nullable = false)
     private String lastName;
 
     @Column(nullable = false)
