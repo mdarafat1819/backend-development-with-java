@@ -10,6 +10,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.example.stms_multi_user.security.JwtAuthenticationFilter;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -26,20 +29,21 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, 
+        JwtAuthenticationFilter jwtAuthenticationFilter
+    ) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/api/auth/**", "/api/request-otp", "/api/verify-otp",
+                .requestMatchers("/", "/api/auth/register","/api/auth/login",
                         "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/hello").authenticated()
+                .requestMatchers("/api/hello", "/api/request-otp", "/api/verify-otp").authenticated()
                 .anyRequest().denyAll()
             )
-            .httpBasic(httpBasic -> {}); 
-
+             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

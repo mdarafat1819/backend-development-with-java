@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.stms_multi_user.dto.LoginRequest;
 import com.example.stms_multi_user.dto.OtpRequest;
 import com.example.stms_multi_user.dto.UserRegistrationRequest;
+import com.example.stms_multi_user.security.JwtUtil;
 import com.example.stms_multi_user.services.UserService;
 
 import jakarta.validation.Valid;
@@ -26,10 +27,14 @@ import jakarta.validation.Valid;
 public class AuthController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(UserService userService, AuthenticationManager authenticationManager) {
+    public AuthController(UserService userService, AuthenticationManager authenticationManager
+        ,JwtUtil jwtUtil
+    ) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
@@ -40,14 +45,20 @@ public class AuthController {
         );
     }
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
          authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(
             request.getEmail(),
             request.getPassword()
         )
     );
-        return "Login Successfully";
+        String token = jwtUtil.generateToken(request.getEmail());
+
+        return ResponseEntity.ok(
+            Map.of(
+                "token", token
+            )
+        );
     }
 
 }
