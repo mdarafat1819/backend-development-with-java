@@ -23,13 +23,4 @@ public class AuthController {
     public AuthController(RegistrationService registrationService) {
         this.registrationService = registrationService;
     }
-
-    @PostMapping("/register/request-otp")
-    public ResponseEntity<?> requestOtp (@Valid @RequestBody OtpRequest request) {
-        System.out.println("RequestOtp");
-        registrationService.requestOtp(request.getEmail());
-        return ResponseEntity.ok(
-            Map.of("message", "OTP sent to your email")
-        );
-    }
 }
