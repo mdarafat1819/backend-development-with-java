@@ -2,6 +2,7 @@ package com.example.stms_multi_user.controllers;
 
 import java.util.Map;
 
+import org.apache.catalina.valves.rewrite.RewriteCond;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.stms_multi_user.dto.LoginRequest;
 import com.example.stms_multi_user.dto.OtpRequest;
 import com.example.stms_multi_user.dto.UserRegistrationRequest;
+import com.example.stms_multi_user.dto.VerifyOtpRequest;
 import com.example.stms_multi_user.security.JwtUtil;
 import com.example.stms_multi_user.services.UserService;
 
@@ -29,9 +31,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    public AuthController(UserService userService, AuthenticationManager authenticationManager
-        ,JwtUtil jwtUtil
-    ) {
+    public AuthController(UserService userService, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -41,22 +41,29 @@ public class AuthController {
     public ResponseEntity<?> userRegistration(@RequestBody UserRegistrationRequest request) {
         userService.register(request);
         return ResponseEntity.ok(
-            Map.of("message", "Registration Successfull, Please verify your email using following url")
-        );
+                Map.of("message",
+                        "An OTP has been sent to your email. Please verify it using the /api/auth/verify-user-email endpoint to activate your account."));
     }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-         authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(
-            request.getEmail(),
-            request.getPassword()
-        )
-    );
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()));
         String token = jwtUtil.generateToken(request.getEmail());
 
         return ResponseEntity.ok(
+                Map.of(
+                        "token", token));
+    }
+
+    @PostMapping("/verify-user-email")
+    public ResponseEntity<?> verifyAndActiveUser(VerifyOtpRequest request) {
+        userService.verifyEmailAndActiveUser(request);
+        return ResponseEntity.ok(
             Map.of(
-                "token", token
+                "message", "Successfully veryfied"
             )
         );
     }

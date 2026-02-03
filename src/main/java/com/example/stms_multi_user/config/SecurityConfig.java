@@ -40,7 +40,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/api/auth/register","/api/auth/login",
                         "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/hello", "/api/request-otp", "/api/verify-otp").authenticated()
+                .requestMatchers("/api/hello","/api/auth/verify-user-email","/api/request-otp", "/api/verify-otp").authenticated()
                 .anyRequest().denyAll()
             )
              .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
