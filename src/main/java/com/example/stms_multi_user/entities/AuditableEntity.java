@@ -20,7 +20,7 @@ import lombok.Setter;
 public class AuditableEntity {
     
     @CreatedDate
-    private LocalDateTime createdDate;
+    protected LocalDateTime createdDate;
 
     @CreatedBy
     private String createdBy;

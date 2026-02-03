@@ -41,7 +41,7 @@ public class User implements UserDetails {
 
       @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(); // no roles for now
+        return List.of(()->"ROLE_"+role); 
     }
     @Override
     public String getUsername() {

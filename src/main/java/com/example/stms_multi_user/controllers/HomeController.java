@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.stms_multi_user.dto.OtpRequest;
 import com.example.stms_multi_user.dto.VerifyOtpRequest;
+import com.example.stms_multi_user.security.SecurityUtil;
 import com.example.stms_multi_user.services.EmailOtpService;
 
 import jakarta.validation.Valid;
@@ -48,6 +49,7 @@ public class HomeController {
     }
     @GetMapping("/api/hello") 
     public ResponseEntity<?>hello() {
+        System.out.println(SecurityUtil.getCurrentUserEmail());
         return ResponseEntity.ok(
             Map.of("message", "Hello World")
         );
