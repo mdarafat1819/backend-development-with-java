@@ -13,7 +13,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtil {
 
     private final String SECRET_KEY = "THIS_IS_A_SUPER_SECURE_SECRET_KEY_123456"; 
-    private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
+    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hour
 
     public String generateToken(String email) {
         return Jwts.builder()

@@ -16,9 +16,10 @@ public class EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setTo(toEmail);
-        message.setSubject("OTP for Nutri-Care School User registration");
+        message.setSubject("STMS OTP Service");
         message.setText(
-            "Your OTP is: " + otp + "\n\nThis OTP will expire in 5 minutes." + "\n\nDo not share this OTP with anyone."
+            "Dear User,\nYour OTP is: "+ otp + 
+            "\nThis OTP will expire in 5 minutes." + "\nDo not share this OTP with anyone."
         );
 
         mailSender.send(message);
