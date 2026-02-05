@@ -17,4 +17,9 @@ public class AuthResponse {
         this.message = message;
         this.token = token;
     }
+
+    public AuthResponse orElseThrow(Object object) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
+    }
 }

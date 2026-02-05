@@ -8,6 +8,8 @@ import com.example.stms_multi_user.dto.AuthResponse;
 import com.example.stms_multi_user.dto.UserRegistrationRequest;
 import com.example.stms_multi_user.dto.VerifyOtpRequest;
 import com.example.stms_multi_user.entities.User;
+import com.example.stms_multi_user.exceptions.UserAlreadyExistsException;
+import com.example.stms_multi_user.exceptions.UserNotFoundException;
 import com.example.stms_multi_user.repositories.UserRepository;
 import com.example.stms_multi_user.security.JwtUtil;
 
@@ -35,7 +37,7 @@ public class UserService {
 
     public void register(UserRegistrationRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("User already exist with this email");
+            throw new UserAlreadyExistsException(request.getEmail());
         }
 
         User user = new User();
@@ -52,15 +54,20 @@ public class UserService {
     }
 
     public AuthResponse login(String email, String password) {
+
+        if(userRepository.findByEmail(email).isEmpty()) {
+            throw new UserNotFoundException(email);
+        }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password));
         String token = jwtUtil.generateToken(email);
-
-        return new AuthResponse(true, "Login Successfully", token);
+        return new AuthResponse(true, "Logged in successfully.", token);
+        
     }
 
     @Transactional
-    public void verifyEmailAndActiveUser(VerifyOtpRequest request) {
+    public void verifyEmailAndActivateUser(VerifyOtpRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new RuntimeException("User not found with email: " + request.getEmail()));
@@ -73,7 +80,7 @@ public class UserService {
             userRepository.save(user);
             emailOtpService.deleteOtp(request.getEmail());
         } else {
-            throw new RuntimeException("Invalid OTP for email: " + request.getEmail());
+            throw new RuntimeException("Invalid OTP for email `" + request.getEmail() + "`");
         }
     }
 
