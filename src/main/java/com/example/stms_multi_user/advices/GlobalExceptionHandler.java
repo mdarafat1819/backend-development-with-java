@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -82,6 +83,20 @@ public class GlobalExceptionHandler {
    public ResponseEntity<ErrorResponse>handleUserNotFound(
     HttpServletRequest request,
     UserNotFoundException ex
+   ) {
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(),
+        HttpStatus.NOT_FOUND.getReasonPhrase(),
+        ex.getMessage(),
+        request.getRequestURI()
+    );
+
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+   }
+
+   @ExceptionHandler(UsernameNotFoundException.class)
+   public ResponseEntity<ErrorResponse>handleUsernameNotFound(
+    HttpServletRequest request,
+    UsernameNotFoundException ex
    ) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(),
         HttpStatus.NOT_FOUND.getReasonPhrase(),

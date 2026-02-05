@@ -29,7 +29,8 @@ public class AuthController {
     public ResponseEntity<AuthResponse> userRegistration(@RequestBody UserRegistrationRequest request) {
         userService.register(request);
 
-        AuthResponse authResponse = userService.login(request.getEmail(), request.getPassword());
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setSuccess(true);
         authResponse.setMessage("An OTP has been sent to your email. Please verify it using the /api/auth/verify-user-email endpoint to activate your account");
 
         return ResponseEntity.ok(authResponse);
@@ -42,12 +43,10 @@ public class AuthController {
     }
 
     @PostMapping("/verify-user-email")
-    public ResponseEntity<?> verifyAndActiveUser(@RequestBody VerifyOtpRequest request) {
+    public ResponseEntity<AuthResponse> verifyAndActiveUser(@RequestBody VerifyOtpRequest request) {
         userService.verifyEmailAndActivateUser(request);
         return ResponseEntity.ok(
-            Map.of(
-                "message", "Successfully Verified"
-            )
+            new AuthResponse(true, "Your OTP has been verified successfully.",null)
         );
     }
 
