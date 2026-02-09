@@ -1,4 +1,4 @@
-# Simple Task Management System (Java Console App)
+# Simple Task Management System
 
 ## Objective  
 This is a simple console-based Task Management System built using **Core Java**.  
@@ -55,9 +55,8 @@ Each task contains the following fields:
 - **JDK 21** (Java Development Kit 21)  
 - Any IDE (IntelliJ IDEA, Eclipse, VS Code) or command-line terminal 
 ## ▶ How to Run  
-Clone the repository:
    ```bash
-   git clone https://github.com/mdarafat1819/stms_java_console_app.git
-   cd stms_java_console_app
+   git clone https://github.com/mdarafat1819/backend-development-with-java.git
+   cd backend-development-with-java/core_java/"task_management_system console_app"
    javac Stms.java
    java Stms
