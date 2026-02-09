@@ -57,10 +57,10 @@ java-backend-journey/       # Central repository showcasing my overall backend d
 **•** Security Basics **•** CSRF **•** XSS **•** SQL Injection **•** Security Filter Chain **•** JWT **•** Signup & Login using JWT **•** Authentication using JWT
 
 ## 🧩 Featured Projects  
-### 1. Task Management System Console App - [Console-based Application](/core_java/task_management_system%20console_app/)
+### 1. Task Management System Console App - [Console Application](/core_java/task_management_system%20console_app/)
 - A console-based Java application for Simple Task Management System
 - Focuses on OOP concepts, core Java APIs, and real-world problem-solving
 
-### 2. Task Management System - [Spring-boot based Application](/task_management_system/) 
+### 2. Task Management System - [Spring Boot Application](/task_management_system/) 
 - Spring Boot application with CRUD operations, authentication, authorization, and JWT-based security for multi-user access.
 - It supports multi-user access using JWT-based security and follows clean, scalable backend design practices.
