@@ -30,6 +30,17 @@ You need the following:
 javac Filename.java
 java Filename
 ```
+## 📂 Repository Structure
+```
+core_java
+├───advanced_java
+├───basics
+├───collections_and_dsa
+├───file_handling
+├───object_oriented_programming
+└───task_management_system console_app      # A console-based Java application for Simple Task Management System.
+```
+
 # 📚 Covered Topics
 
 **Java Basics**  
@@ -52,10 +63,3 @@ java Filename
 
 **Advanced Java**  
 **•** Wrapper Classes **•** Generics **•** Annotations **•** Regex **•** Threads **•** Lambda Expressions
-
-# 🔹 Featured Project
-
-## 1. STMS Java Console App
-**Repository:** https://github.com/mdarafat1819/stms_java_console_app
-- A console-based Java application for Simple Task Management System
-- Focuses on OOP concepts, core Java APIs, and real-world problem-solving

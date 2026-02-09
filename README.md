@@ -10,30 +10,13 @@ The goal of this repository is to:
 
 ## 📂 Repository Structure
 ```
-java-backend-journey/
-├── core_java/
-├── design_patterns/
-├── stms_java_console_app/
-├── stms_spring_boot_app/
-├── learn_spring_security/
-└── stms_multi_user_spring_boot_app/
+java-backend-journey/       # Central repository showcasing my overall backend development journey and learning activities
+├── core_java/              # Contains core Java practice code to strengthen fundamental concepts
+├── design_patterns/        # Contains implementations of essential design patterns learned in Java
+└── task_management_system  # Spring Boot–based application where backend concepts are applied to build a task management system
 ```
 
-## 📚 Covered Topics(Spring Boot)
-
-**Spring Boot Basics**  
-**•** Spring Architecture **•** Spring IOC Container **•** Spring Beans **•** Dependency Injection **•** Spring Context **•** Spring Boot Annotations **•** Spring Boot Auto Configuration
-
-**Spring MVC**  
-**•** MVC Architecture & Request Flow **•** Controller **•** Restful API **•** Data Binding & Validation **•** Exception Handling **•** Interceptors
-
-**Spring Data JPA**  
-**•** JPA Introduction **•** JPA Repository Interface **•** Entity Mapping **•** Fetching Strategies **•** JPQL and Native Queries **•** Paging and Sorting **•** Optimistic & Pessimistic Locking **•** Transactions
-
-**Spring Security Basics**  
-**•** Security Basics **•** CSRF **•** XSS **•** SQL Injection **•** Security Filter Chain **•** JWT **•** Signup & Login using JWT **•** Authentication using JWT
-
-## 📚 Covered Topics(Core Java)
+## 📚 Covered Topics - [Core Java](/core_java/)
 
 **Java Basics**  
 **•** Syntax **•** Variables **•** Data Types **•** Operators **•** Strings **•** Math **•** Conditions **•** Loops **•** Arrays
@@ -56,16 +39,28 @@ java-backend-journey/
 **Advanced Java**  
 **•** Wrapper Classes **•** Generics **•** Annotations **•** Regex **•** Threads **•** Lambda Expressions
 
-## 🧩 Featured Projects
+## 📚 Covered Topics - [Design Pattern](design_pattern/)
+**•** Singleton **•** Dependency Injection **•** Factory Method **•** Inversion of Control
 
+## 📚 Covered Topics - [Spring Boot](task_management_system/)
 
-## 3. stms_multi_user_spring_boot_app 
-- **Repository:** https://github.com/mdarafat1819/backend-development-with-java/tree/main/stms_multi_user_spring_boot_app
-- Spring Boot application with CRUD operations, authentication, authorization, and JWT-based security for multi-user access.
-## 2. stms_spring_boot_app
-- **Repository:** https://github.com/mdarafat1819/backend-development-with-java/tree/main/stms_spring_boot_app
-- Spring Boot application implementing basic CRUD operations with PostgreSQL.
-## 1. STMS Java Console App
-- **Repository:** https://github.com/mdarafat1819/stms_java_console_app
+**Spring Boot Basics**  
+**•** Spring Architecture **•** Spring IOC Container **•** Spring Beans **•** Dependency Injection **•** Spring Context **•** Spring Boot Annotations **•** Spring Boot Auto Configuration
+
+**Spring MVC**  
+**•** MVC Architecture & Request Flow **•** Controller **•** Restful API **•** Data Binding & Validation **•** Exception Handling **•** Interceptors
+
+**Spring Data JPA**  
+**•** JPA Introduction **•** JPA Repository Interface **•** Entity Mapping **•** Fetching Strategies **•** JPQL and Native Queries **•** Paging and Sorting **•** Optimistic & Pessimistic Locking **•** Transactions
+
+**Spring Security Basics**  
+**•** Security Basics **•** CSRF **•** XSS **•** SQL Injection **•** Security Filter Chain **•** JWT **•** Signup & Login using JWT **•** Authentication using JWT
+
+## 🧩 Featured Projects  
+### 1. Task Management System Console App - [Console-based Application](/core_java/task_management_system%20console_app/)
 - A console-based Java application for Simple Task Management System
 - Focuses on OOP concepts, core Java APIs, and real-world problem-solving
+
+### 2. Task Management System - [Spring-boot based Application](/task_management_system/) 
+- Spring Boot application with CRUD operations, authentication, authorization, and JWT-based security for multi-user access.
+- It supports multi-user access using JWT-based security and follows clean, scalable backend design practices.
