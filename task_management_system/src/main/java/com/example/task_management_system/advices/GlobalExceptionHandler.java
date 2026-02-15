@@ -10,6 +10,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -117,6 +118,28 @@ public class GlobalExceptionHandler {
         ,ex.getMessage(), request.getRequestURI());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+   }
+
+   @ExceptionHandler(MethodArgumentNotValidException.class)
+   public ResponseEntity<ErrorResponse>handleMethodArgumentNotValidExecption(
+    HttpServletRequest request,
+    MethodArgumentNotValidException ex
+   ) {
+
+       String message = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(error -> error.getField() + ": " + error.getDefaultMessage())
+            .reduce((msg1, msg2) -> msg1 + ", " + msg2)
+            .orElse("Validation Failed");
+
+    ErrorResponse errorResponse = new ErrorResponse(400, 
+        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+        message,
+        request.getRequestURI()
+    );
+
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
    }
 
    @ExceptionHandler(RuntimeException.class)

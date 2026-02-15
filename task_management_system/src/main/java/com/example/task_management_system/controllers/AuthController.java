@@ -14,6 +14,8 @@ import com.example.task_management_system.dto.UserRegistrationRequest;
 import com.example.task_management_system.dto.VerifyOtpRequest;
 import com.example.task_management_system.services.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 
@@ -26,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> userRegistration(@RequestBody UserRegistrationRequest request) {
+    public ResponseEntity<AuthResponse> userRegistration(@Valid @RequestBody UserRegistrationRequest request) {
         userService.register(request);
 
         AuthResponse authResponse = new AuthResponse();
@@ -37,7 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
        AuthResponse authResponse = userService.login(request.getEmail(), request.getPassword());
        return ResponseEntity.ok(authResponse);
     }
