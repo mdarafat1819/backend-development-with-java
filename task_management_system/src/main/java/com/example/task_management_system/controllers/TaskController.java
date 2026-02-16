@@ -4,11 +4,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.task_management_system.dto.TaskRequest;
-import com.example.task_management_system.entities.Task;
+import com.example.task_management_system.dto.TaskResponse;
 import com.example.task_management_system.services.TaskService;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,22 +28,22 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getTasks() {
+    public List<TaskResponse> getTasks() {
         return taskService.getAllTasks();
     }
 
     @GetMapping("/{id}") 
-    public Task getTask(@PathVariable Integer id) {
+    public TaskResponse getTask(@PathVariable Integer id) {
         return taskService.getTask(id);
     }
 
     @PostMapping
-    public Task createTask(@RequestBody TaskRequest request) {
+    public TaskResponse createTask(@RequestBody TaskRequest request) {
         return taskService.createTask(request);
     }
 
     @PutMapping("/{id}")
-    public Task updateTask(@PathVariable Integer id, @RequestBody TaskRequest request) {
+    public TaskResponse updateTask(@PathVariable Integer id, @RequestBody TaskRequest request) {
         return taskService.updateTask(id, request);
     }
 
@@ -50,5 +51,13 @@ public class TaskController {
     public void deleteTask(@PathVariable Integer id) {
         taskService.deletTask(id);
     }
-    
+
+    @PutMapping("/{taskId}/assign/{userEmail}")
+    public ResponseEntity<TaskResponse> assignTask(@PathVariable Integer taskId, @PathVariable String userEmail) {
+        return ResponseEntity.ok(taskService.assignTask(taskId, userEmail));
+    }
+    @DeleteMapping("/{taskId}/assignee")
+    public ResponseEntity<TaskResponse> removeAssignee(@PathVariable Integer taskId) {
+        return ResponseEntity.ok(taskService.removeAssignee(taskId));
+    }
 }

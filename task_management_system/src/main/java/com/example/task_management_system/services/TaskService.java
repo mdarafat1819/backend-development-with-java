@@ -1,41 +1,52 @@
 package com.example.task_management_system.services;
 
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.example.task_management_system.dto.TaskRequest;
+import com.example.task_management_system.dto.TaskResponse;
 import com.example.task_management_system.entities.Task;
+import com.example.task_management_system.entities.User;
 import com.example.task_management_system.exceptions.TaskNotFoundException;
+import com.example.task_management_system.exceptions.UserNotFoundException;
 import com.example.task_management_system.repositories.TaskRepository;
+import com.example.task_management_system.repositories.UserRepository;
 import com.example.task_management_system.security.SecurityUtil;
 
 @Service
 public class TaskService {
     private TaskRepository taskRepository;
+    private UserRepository userRepository;
     private final ModelMapper modelMapper;
 
-    public TaskService(TaskRepository taskRepository, ModelMapper modelMapper) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, ModelMapper modelMapper) {
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<TaskResponse> getAllTasks() {
+        List<Task>tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+       Type listType = new TypeToken<List<TaskResponse>>() {}.getType();
+        
+        return modelMapper.map(tasks, listType);
     }
 
-    public Task getTask(Integer id) {
-        return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+    public TaskResponse getTask(Integer id) {
+        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        return modelMapper.map(task, TaskResponse.class);
     }
-    public Task createTask(TaskRequest taskRequest) {
+    public TaskResponse createTask(TaskRequest taskRequest) {
         Task task = modelMapper.map(taskRequest, Task.class);
         task.setCreatedDate(LocalDateTime.now());
         task.setCreatedBy(SecurityUtil.getCurrentUserEmail());
-        task.setUpdateDate(LocalDateTime.now());
-        task.setUpdatedBy(SecurityUtil.getCurrentUserEmail());
-        return taskRepository.save(task);
+        return modelMapper.map(taskRepository.save(task), TaskResponse.class);
     }
 
     public void deletTask(Integer id) {
@@ -52,7 +63,7 @@ public class TaskService {
             throw new AuthorizationDeniedException("You are not authorized to delete this task.");
     }
 
-    public Task updateTask(Integer id, TaskRequest updateTaskRequest) {
+    public TaskResponse updateTask(Integer id, TaskRequest updateTaskRequest) {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
@@ -72,9 +83,37 @@ public class TaskService {
         existingTask.setUpdatedBy(SecurityUtil.getCurrentUserEmail());
 
         if (existingTask.getCreatedBy().equals(currentUserEmail) || currentUserRole.equals("ADMIN")) {
-            return taskRepository.save(existingTask);
+            return modelMapper.map(taskRepository.save(existingTask), TaskResponse.class);
         } else
             throw new AuthorizationDeniedException("You are not authorized to update this task.");
 
+    }
+
+    public TaskResponse assignTask(Integer taskId, String assigneeEmail) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+        User user = userRepository.findByEmail(assigneeEmail).orElseThrow(()-> new UserNotFoundException(assigneeEmail));
+
+        task.setAssignee(user);
+        task.setUpdateDate(LocalDateTime.now());
+        task.setUpdatedBy(SecurityUtil.getCurrentUserEmail());
+
+        taskRepository.save(task);
+
+       return modelMapper.map(task, TaskResponse.class);
+    }
+
+    public TaskResponse removeAssignee(Integer taskId) {
+        System.out.println("Hello from removeAssignee API");
+        Task task = taskRepository.findById(taskId).orElseThrow(
+            ()->new TaskNotFoundException(taskId)
+        );
+
+        task.setAssignee(null);
+        task.setUpdateDate(LocalDateTime.now());
+        task.setUpdatedBy(SecurityUtil.getCurrentUserEmail());
+        taskRepository.save(task);
+
+        return modelMapper.map(task, TaskResponse.class);
     }
 }

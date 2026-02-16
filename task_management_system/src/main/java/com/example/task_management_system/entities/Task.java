@@ -27,8 +27,15 @@ public class Task extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    // @ManyToOne
-    // @JoinColumn(name = "assignee_email")
-    // private User assignee;
+    @ManyToOne
+    @JoinColumn(name = "assignee")
+    private User assignee;
 
+    public String getStatusDescription() {
+        return status.getDescripiton();
+    }
+    public String getAssigneeName() {
+        if(assignee == null) return null;
+        return assignee.getFirstName() + " " + assignee.getLastName();
+    }
 }
