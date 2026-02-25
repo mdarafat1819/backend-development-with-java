@@ -16,7 +16,7 @@ java-backend-journey/       # Central repository showcasing my overall backend d
 └── task_management_system  # Spring Boot–based application where backend concepts are applied to build a task management system
 ```
 
-## 📚 Covered Topics - [Core Java](/core_java/)
+# 📚 Covered Topics - [Core Java](/core_java/)
 
 **Java Basics**  
 **•** Syntax **•** Variables **•** Data Types **•** Operators **•** Strings **•** Math **•** Conditions **•** Loops **•** Arrays
@@ -39,12 +39,10 @@ java-backend-journey/       # Central repository showcasing my overall backend d
 **Advanced Java**  
 **•** Wrapper Classes **•** Generics **•** Annotations **•** Regex **•** Threads **•** Lambda Expressions
 
-## 📚 Covered Topics - [Design Pattern](design_pattern/)
-**•** Singleton **•** Dependency Injection **•** Factory Method **•** Inversion of Control
-
-## 📚 Covered Topics - [Spring Boot](task_management_system/)
+# 📚 Covered Topics - [Spring Boot](task_management_system/)
 **Spring boot** is an extension of the Spring-Framework that simplifies the creation of stand-alone, production-grade Spring-based applications. It provides a fast and efficient way to develop Spring applications with minimal configuration.   
-### To work with Spring Boot, it is important to understand the following core principles:
+## Introduction To Spring Boot  
+To work with Spring Boot, it is important to understand the following core principles:
 ### 1️⃣ Dependency Injection (DI) - [DependencyInjection.java](/design_pattern/DependencyInjection.java)
 Dependency Injection (DI) is a design pattern used in object-oriented programming where an object receives its required dependencies from an external source rather than creating them itself. It helps manage how objects are constructed and how they obtain the resources they need. By separating dependency creation from usage, DI improves code flexibility. This results in systems that are easier to modify, test, and maintain.
 - Reduces tight coupling between classes
@@ -59,12 +57,111 @@ what does **“Inversion of Control”** even mean?
 From you → to the container  
 That’s it. That’s IoC.
 
-The Spring framework provides an Inversion of Control (IoC) container that manages the creation and lifecycle of objects (beans) and their dependencies.
+The Spring framework provides an Inversion of Control (IoC) container that manages the creation and lifecycle of objects (beans) and their dependencies.  
+**Spring provides two main types of IoC containers:**
+1. **BeanFactory:** This is the most basic type of IoC container in Spring. It provides the essential features needed to manage objects (called Beans) in your application. BeanFactory is lightweight and perfect for simple applications where you only need basic dependency injection.
 
-### Spring provides two main types of IoC containers:  
-**BeanFactory:** This is the most basic type of IoC container in Spring. It provides the essential features needed to manage objects (called Beans) in your application. BeanFactory is lightweight and perfect for simple applications where you only need basic dependency injection.
+2. **Application Context:** This is a more advanced type of IoC container that extends the capabilities of BeanFactory. In addition to the basic features, ApplicationContext offers more robust options like event propagation, declarative mechanisms to create a Bean, and a more extensive lifecycle management. It's typically the go-to choice for most Spring applications because of its powerful features.
 
-**Application Context:** This is a more advanced type of IoC container that extends the capabilities of BeanFactory. In addition to the basic features, ApplicationContext offers more robust options like event propagation, declarative mechanisms to create a Bean, and a more extensive lifecycle management. It's typically the go-to choice for most Spring applications because of its powerful features.
+<details><summary>Example of IOC in Spring</summary>
+
+1. Engine.java 
+    ```Java
+    public class Engine {
+
+        public Engine() {
+            System.out.println("Engine bean created");
+        }
+
+        public void start() {
+            System.out.println("Engine started");
+        }
+    }
+    ```
+2. Car.java
+    ```Java
+    public class Car {
+
+        private Engine engine;
+
+        public Car(Engine engine) {
+            System.out.println("Car bean created");
+            this.engine = engine;
+        }
+
+        public void drive() {
+            engine.start();
+            System.out.println("Car is driving");
+        }
+    }
+    ```
+3. AppConfig.java
+    ```Java
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+
+    @Configuration
+    public class AppConfig {
+
+        @Bean
+        public Engine engine() {
+            return new Engine();
+        }
+
+        @Bean
+        public Car car() {
+            return new Car(engine());
+        }
+    }
+    ```
+4. ApplicationContext Example(Eager Initialization)
+    ```Java
+    import org.springframework.context.ApplicationContext;
+    import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+    public class ApplicationContextExample {
+
+        public static void main(String[] args) {
+
+            System.out.println("Before context initialization");
+
+            ApplicationContext context =
+                    new AnnotationConfigApplicationContext(AppConfig.class);
+
+            System.out.println("After context initialization");
+
+            Car car = context.getBean(Car.class);
+            car.drive();
+        }
+    }
+    ```
+4. BeanFactory Example(Lazy Initialization)
+    ```Java
+    import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+    import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
+
+    public class BeanFactoryExample {
+
+        public static void main(String[] args) {
+
+            System.out.println("Before BeanFactory setup");
+
+            DefaultListableBeanFactory factory =
+                    new DefaultListableBeanFactory();
+
+            AnnotatedBeanDefinitionReader reader =
+                    new AnnotatedBeanDefinitionReader(factory);
+
+            reader.register(AppConfig.class);
+
+            System.out.println("After BeanFactory setup");
+
+            Car car = factory.getBean(Car.class);
+            car.drive();
+        }
+    }
+    ```
+</details>
 
 ### 3️⃣ Beans in Spring Boot - [Spring Beans](https://www.linkedin.com/pulse/understanding-beans-spring-boot-nejah-yengui-c6zlf/)
 Spring Beans are Java objects managed by the Spring Container, allowing for dependency injection and efficient application configuration.  
@@ -79,82 +176,86 @@ Spring Beans are Java objects managed by the Spring Container, allowing for depe
 - Annotation-Based Configuration
 - Java-based Configuration
 
-**Types of Beans in Spring Boot:** Spring provides multiple ways to define Beans, each with its own purpose and use case.  
-1️⃣ `@Component` (Most Common)  
-This is the most basic way to define a Bean in Spring. It's typically used for generic components.
-```bash
-@Component
-public class MyService {
-    public String getServiceName() {
-        return "This is MyService";
-    }
-} 
-```
-➡ Where to use?
-- Utility classes
-- General services
-- Simple business logic components
+**Spring provides multiple ways to define Beans, each with its own purpose and use case:** 
 
-2️⃣ `@Service` (Specialized Component for Business Logic)
-A specialized version of @Component, used specifically for service classes.
-```bash
-@Service
-public class UserService {
-    public String getUser() {
-        return "Fetching user details...";
-    }
-} 
-```
-➡ Where to use?
-- Business logic implementation
-- Service layer handling complex operations
+1. `@Component` (Most Common)  
+This is the most basic way to define a Bean in Spring. It's typically used for generic components.  
+➡ Where to use?  
+    - Utility classes
+    - General services
+    - Simple business logic components
 
-3️⃣ `@Repository` (DAO Layer for Data Access)
-This is a specialized `@Component` used in the data access layer. It also provides exception translation.
-```bash
-@Repository
-public class UserRepository {
-    public List<String> findAllUsers() {
-        return List.of("John", "Jane", "Doe");
-    }
-} 
-```
-➡ Where to use?
-- Database interaction
-- DAO (Data Access Object) layer  
+    ```bash
+    @Component
+    public class MyService {
+        public String getServiceName() {
+            return "This is MyService";
+        }
+    } 
+    ```
 
-4️⃣ `@Controller` (For Handling HTTP Requests)
-Used in Spring MVC to handle incoming web requests.
-```bash
-@RestController
-@RequestMapping("/api")
-public class UserController {
-    @GetMapping("/users")
-    public List<String> getUsers() {
-        return List.of("Alice", "Bob");
-    }
-} 
-```
-➡ Where to use?
-- Exposing APIs
-- Handling HTTP requests  
+2. `@Service` (Specialized Component for Business Logic)  
+A specialized version of @Component, used specifically for service classes.  
+    ➡ Where to use?  
+    - Business logic implementation
+    - Service layer handling complex operations
+    ```bash
+    @Service
+    public class UserService {
+        public String getUser() {
+            return "Fetching user details...";
+        }
+    } 
+    ```
 
-5️⃣ `@Bean` (Manual Bean Definition)
-Used inside a @Configuration class to define a Bean manually.
-```bash
-@Configuration
-public class AppConfig {
-    @Bean
-    public MyService myService() {
-        return new MyService();
-    }
-} 
-```
-➡ Where to use?
-- When you need more control over Bean creation
-- Third-party library Beans  
 
-## 4️⃣ Spring Context  
+3. `@Repository` (DAO Layer for Data Access)  
+This is a specialized `@Component` used in the data access layer. It also provides exception translation.  
+➡ Where to use?  
+    - Database interaction
+    - DAO (Data Access Object) layer  
+    ```bash
+    @Repository
+    public class UserRepository {
+        public List<String> findAllUsers() {
+            return List.of("John", "Jane", "Doe");
+        }
+    } 
+    ```
+
+4. `@Controller` (For Handling HTTP Requests)  
+Used in Spring MVC to handle incoming web requests.  
+➡ Where to use?
+    - Exposing APIs
+    - Handling HTTP requests  
+    ```bash
+    @RestController
+    @RequestMapping("/api")
+    public class UserController {
+        @GetMapping("/users")
+        public List<String> getUsers() {
+            return List.of("Alice", "Bob");
+        }
+    } 
+    ```
+
+5. `@Bean` (Manual Bean Definition)
+Used inside a `@Configuration` class to define a Bean manually.  
+➡ Where to use?
+    - When you need more control over Bean creation
+    - Third-party library Beans  
+    ```bash
+    @Configuration
+    public class AppConfig {
+        @Bean
+        public MyService myService() {
+            return new MyService();
+        }
+    } 
+    ```
+
+
+### 4️⃣ Spring Context  
 The Spring Context is the core component of the Spring Framework, representing the Spring IoC (Inversion of Control) container. It is responsible for managing the lifecycle of beans, including their creation, configuration, and destruction. The Spring Context acts as a container that holds the beans and provides them to the application whenever required.
 
 **Types of ApplicationContext**  
@@ -165,14 +266,633 @@ Spring provides several implementations of the `ApplicationContext`, each suitab
 - `AnnotationConfigApplicationContext:` Loads the context definition from Java-based configuration classes using annotations.
 - `WebApplicationContext:` A specialized version of `ApplicationContext` used in web applications.
 
-**Spring MVC**  
-**•** MVC Architecture & Request Flow **•** Controller **•** Restful API **•** Data Binding & Validation **•** Exception Handling **•** Interceptors
+### 5️⃣ Commonly used Spring boot annotations
+1. Core Spring Boot Annotations
+    - `@SpringBootApplication` – Combines `@Configuration`, `@EnableAutoConfiguration`, and `@ComponentScan` to bootstrap the application.
+    - `@Configuration` – Marks a class as a source of bean definitions.
+    - `@Bean` – Declares a method that returns a Spring-managed bean.
+    - `@ComponentScan` – Scans the specified package for Spring components.
+    - `@EnableAutoConfiguration` – Automatically configures Spring based on dependencies.
+2. Stereotype Annotations
+    - `@Component` – Marks a class as a Spring-managed component.
+    - `@Service` – Indicates that a class contains business logic.
+    - `@Repository` – Marks a class as a data access component and enables exception translation.
+    - `@Controller` – Marks a class as a web controller.
+    - `@RestController` – Combines `@Controller` and `@ResponseBody` for REST APIs.
 
-**Spring Data JPA**  
-**•** JPA Introduction **•** JPA Repository Interface **•** Entity Mapping **•** Fetching Strategies **•** JPQL and Native Queries **•** Paging and Sorting **•** Optimistic & Pessimistic Locking **•** Transactions
+3. Dependency Injection
+    - `@Autowired` – Injects a dependency automatically by type.
+    - `@Qualifier` – Specifies which bean to inject when multiple candidates exist.
+    - `@Primary` – Marks a bean as the default choice when multiple beans are available.
+    - `@Value` – Injects values from properties files.
 
-**Spring Security Basics**  
-**•** Security Basics **•** CSRF **•** XSS **•** SQL Injection **•** Security Filter Chain **•** JWT **•** Signup & Login using JWT **•** Authentication using JWT
+4. Web Layer Annotations
+    - `@RequestMapping` – Maps HTTP requests to handler methods.
+    - `@GetMapping` – Handles HTTP GET requests.
+    - `@PostMapping` – Handles HTTP POST requests.
+    - `@PutMapping` – Handles HTTP PUT requests.
+    - `@DeleteMapping` – Handles HTTP DELETE requests.
+    - `@PathVariable` – Binds URL path variables to method parameters.
+    - `@RequestParam` – Binds query parameters to method parameters.
+    - `@RequestBody` – Binds HTTP request body to a Java object.
+    - `@ResponseBody` – Returns data directly as HTTP response body.
+5. JPA & Database Annotations
+    - `@Entity` – Marks a class as a JPA entity.
+    - `@Table` – Specifies the database table name.
+    - `@Id` – Marks the primary key of an entity.
+    - `@GeneratedValue` – Specifies how the primary key is generated.
+    - `@Column` – Maps a field to a database column.
+    - `@OneToOne` – Defines a one-to-one relationship.
+    - `@OneToMany` – Defines a one-to-many relationship.
+    - `@ManyToOne` – Defines a many-to-one relationship.
+    - `@ManyToMany` – Defines a many-to-many relationship.
+    - `@JoinColumn` – Specifies the foreign key column.
+
+6. Validation Annotations
+    - `@Valid` – Triggers validation on request body objects.
+    - `@NotNull` – Ensures a field is not null.
+    - `@NotBlank` – Ensures a string is not empty or whitespace.
+    - `@Size` – Validates the size of a string or collection.
+    - `@Email` – Validates email format.
+    - `@Min` – Sets minimum numeric value.
+    - `@Max` – Sets maximum numeric value.
+
+7. Security Annotations
+    - `@EnableWebSecurity` – Enables Spring Security configuration.
+    - `@PreAuthorize` – Authorizes method access before execution.
+    - `@PostAuthorize` – Authorizes method access after execution.
+    - `@Secured` – Restricts access based on roles.
+
+8. Transaction & Utility
+    - `@Transactional` – Manages database transactions automatically.
+    - `@Slf4j` – Creates a logger instance (Lombok).
+    - `@Data` – Generates getters, setters, equals, hashCode, and toString (Lombok).
+    - `@Builder` – Implements the builder pattern (Lombok).
+    - `@AllArgsConstructor` – Generates constructor with all fields.
+    - `@NoArgsConstructor` – Generates no-argument constructor.
+
+## Spring MVC Architecture
+The Spring MVC architecture is designed to streamline the development of web applications by providing a clear separation of concerns. It follows the MVC design pattern, where:
+- `Model` represents the application data and business logic.
+- `View` is responsible for rendering the user interface.
+- `Controller` handles user requests and coordinates between the Model and the View.
+
+In Spring MVC, the architecture revolves around a central component called the `DispatcherServlet`, which acts as the front controller. It delegates requests to appropriate controllers, based on the configured `HandlerMapping`, and returns a `ModelAndView` object to be rendered by a `ViewResolver`.
+
+**`DispatcherServlet` performs the following steps:**
+- **Receives the Request:** DispatcherServlet intercepts the incoming request.
+- **Finds the Handler:** It uses HandlerMapping to determine the appropriate handler (controller) for the request.
+- **Executes the Handler:** Once the handler is determined, DispatcherServlet calls the corresponding controller method.
+- **Returns the Model and View:** The controller returns a ModelAndView object, which contains the model data and the view name.
+- **Renders the View:** DispatcherServlet uses ViewResolver to render the view based on the ModelAndView object.
+```java
+@Controller  // Marks this class as a Spring MVC controller
+public class HomeController {  // Defines the controller class
+
+    @RequestMapping("/home")  // Maps the URL "/home" to this method
+    public ModelAndView home() {  // Controller method that handles the request
+
+        ModelAndView mav = new ModelAndView();  // Creates a ModelAndView object
+
+        mav.setViewName("home");  // Sets the logical view name to "home"
+
+        mav.addObject("message", "Welcome to Spring MVC!");  // Adds model data to send to the view
+
+        return mav;  // Returns the ModelAndView to DispatcherServlet
+    }
+}
+```
+
+### 1️⃣ Introduction to REST
+REST(Representational State Transfer) is a stateless architecture, where each request from the client to the server must contain all the information needed to understand and process the request.  
+RESTful APIs follow the following key principles:
+- **Statelessness:** Each request is independent, and the server doesn't retain client state.
+- **Uniform Interface:** APIs use standard HTTP methods like GET, POST, PUT, and DELETE.
+- **Client-Server Separation:** The client and server are independent and can evolve separately.
+### 2️⃣ Data Binding
+Data binding is the process of transferring data between a user interface and the server-side application. In the context of web applications, this means mapping form data from an HTML form to a Java object on the server. Spring Boot simplifies this process through the use of `@ModelAttribute`.
+
+### 3️⃣ Understanding Exception Handling in Spring Boot
+Exception handling in Spring Boot allows you to manage errors that occur during application execution. By default, Spring Boot provides basic error handling, but you can customize it according to your requirements.
+
+The `@ExceptionHandler` annotation allows you to handle exceptions at the controller level, while `@ControllerAdvice` enables global exception handling across the entire application.
+
+1. Create a controller
+    ```Java
+    @RestController
+    public class MyController {
+
+        @GetMapping("/divide/{a}divideBy{b}")
+        public int divide(@PathVariable int a, @PathVariable int b) {
+            return a / b; // May throw ArithmeticException when b = 0
+        }
+        
+        @GetMapping("/custom")
+        public String custom() {
+            throw new CustomException("This is a custom exception");
+        }
+    }
+    ```
+
+2. Create Custom Exception Class  
+This allow you to define application-specific error scenarios with more meaningful or context-specific messages.
+
+    ```Java
+    class CustomException extends RuntimeException {
+
+        public CustomException(String message) {
+            super(message);
+        }
+    }
+    ```
+3. Handling Multiple Exceptions Globally Using the `@ExceptionHandler` Annotation  
+
+    ```Java
+    @ControllerAdvice
+    class GlobalExceptionHandler {
+
+        @ExceptionHandler(ArithmeticException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public String handleMultipleExceptions(ArithmeticException ex) {
+            return "An error occurred: " + ex.getMessage();
+        }
+
+        @ExceptionHandler(CustomException.class)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public String handleCustomException(CustomException ex) {
+            return "An error occurred: " + ex.getMessage();
+        }
+
+        @ExceptionHandler(Exception.class)
+        @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+        public String handleInternalServerError(Exception ex) {
+            return "An internal server error occurred: " + ex.getMessage();
+        }
+    }
+    ```
+
+### 4️⃣ What are Interceptors?
+Interceptors are a powerful feature in Spring Boot that allow you to perform operations before and after the execution of a request. They are particularly useful for tasks such as logging, authentication, or modifying the request and response.  
+
+**Key Uses of Interceptors:**  
+- **Logging:** Log request details and response statuses.
+- **Authentication and Authorization:** Check user credentials and permissions.
+- **Performance Monitoring:** Measure request processing times.
+- **Modification of Requests/Responses:** Add headers or modify request parameters.
+
+**How Interceptors Works:**  
+Interceptors are similar to filters but provide more specific control over request handling. They are part of the Spring MVC framework and are implemented using the `HandlerInterceptor` interface.
+
+Here's a step-by-step guide to creating a custom interceptor in Spring Boot.
+
+1. **Define the Custom Interceptor**  
+Create a class that implements the `HandlerInterceptor` interface. This interface has three key methods that you can override:
+    - `preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)`: Called before the request is processed by a controller.
+    - `postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView)`: Called after the request has been processed but before the view is rendered.
+    - `afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)`: Called after the request has been completed, including view rendering.
+
+    <details><summary> Example of a custom interceptor that logs request and response details </summary>
+
+    ```java
+    @Component
+    public class CustomInterceptor implements HandlerInterceptor {
+
+        private static final Logger logger = Logger.getLogger(CustomInterceptor.class.getName());
+
+        @Override
+        public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+            logger.info("Pre Handle method is Calling");
+            logger.info("Request URL: " + request.getRequestURL());
+            logger.info("Request Method: " + request.getMethod());
+            return true; // Continue with the request
+        }
+
+        @Override
+        public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+            logger.info("Post Handle method is Calling");
+            logger.info("Response Status: " + response.getStatus());
+        }
+
+        @Override
+        public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+            logger.info("After Completion method is Calling");
+            if (ex != null) {
+                logger.severe("Exception: " + ex.getMessage());
+            }
+        }
+    }
+    ```
+    </details>
+
+2. **Register the interceptor**  
+To make your interceptor functional, you need to register it with Spring Boot. This is done by creating a configuration class that implements `WebMvcConfigurer` and overrides the `addInterceptors` method.
+
+    <details><summary>Here's an example of how to register the interceptor</summary>
+
+    ```java
+    @Configuration
+    public class WebConfig implements WebMvcConfigurer {
+
+        @Autowired
+        private CustomInterceptor customInterceptor;
+
+        @Override
+        public void addInterceptors(InterceptorRegistry registry) {
+            registry.addInterceptor(customInterceptor);
+        }
+    }
+    ```
+    </details>
+
+3. **Test the Interceptor**  
+Start your Spring Boot application and make a few requests to test your interceptor. You should see logs in the console indicating that the interceptor's methods are being called at different stages of request processing.
+
+    <details><summary>Interceptro logs</summary>
+
+    ```bash
+    : Pre Handle method is Calling
+    : Request URL: http://localhost:8081/hello
+    : Request Method: GET
+    : Post Handle method is Calling
+    : Response Status: 200
+    : After Completion method is Calling
+    ```
+    </details>
+
+## Spring Data JPA 
+Spring Data JPA is a powerful abstraction in Spring that simplifies working with databases using the Java Persistence API (JPA). It provides a way to handle database operations efficiently without requiring developers to write boilerplate code. 
+
+Spring Data JPA internally uses JPA, the Java standard for Object-Relational Mapping (ORM). With ORM, Java objects are automatically mapped to database tables, making it easier to interact with the database in an object-oriented way.
+
+### 1️⃣ JPA Entities  
+An entity in JPA represents a table in your database. Each instance of the entity corresponds to a row in the table. Here’s an example of a simple `Book` entity:
+
+```Java
+
+@Entity // Marks the class as a JPA entity.
+public class Book {
+    @Id // Specifies the primary key of the entity.
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //  Auto-generates the ID for each new entity.
+    private Long id;
+
+    private String title;
+    private String author;
+    private double price;
+}
+```
+### 2️⃣ Repositories
+Repositories are interfaces that handle database operations, such as saving, updating, or retrieving data. You can create a repository by extending `JpaRepository` or `CrudRepository`. For instance:
+
+```Java
+@Repository
+public interface BookRepository extends JpaRepository<Book, Long> {
+
+}
+```
+This interface now provides built-in CRUD methods (save, findById, delete, etc.) without needing to write SQL queries.
+
+### 3️⃣ Query Methods
+Spring Data JPA allows you to define query methods directly in your repository by following a specific naming convention. For example:
+```java
+List<Book> findByTitle(String title);
+List<Book> findByAuthor(String author);
+```
+Spring will automatically generate the required SQL queries based on the method names!
+
+### 4️⃣ Custom Query Methods
+Spring Data JPA automatically translates these method names into SQL queries. You can also use the `@Query` annotation to write custom JPQL (Java Persistence Query Language) queries:
+```Java
+@Query("SELECT b FROM Book b WHERE b.price > :price")
+List<Book> findBooksCostlierThan(@Param("price") double price);
+```
+### 5️⃣ Entity Mapping  
+Entity mapping is the process of mapping a Java object (an entity) to a corresponding database table using annotations. Each field in the entity class is mapped to a column in the database, and relationships between entities are mapped to reflect foreign keys, join tables, etc.
+
+JPA provides a set of annotations that simplify this mapping process, eliminating the need to write SQL queries manually.
+
+**Common JPA Annotation Explained**  
+1. `@Entity`: 
+Once the class is annotated with `@Entity`, JPA automatically maps it to a table in the database. If no table name is specified, the class name will be used by default.
+
+2. `@Id`: The @Id annotation marks a field as the primary key for the entity. Every entity must have an @Id field.
+3. `@Column`: The @Column annotation is used to specify the mapping between a field and a database column. It allows customization of column properties such as name, length, nullability, etc.
+4. `@Table`: 
+The @Table annotation is used to specify the table name for the entity. If the table name differs from the entity class name, you can use this annotation.
+
+**Defining Relationships Between Entities**
+1. `@OneToOne`: 
+A OneToOne relationship maps one entity to another entity. This is used when an entity has a single related entity.
+2. `@OneToMany: 
+A OneToMany` relationship indicates that one entity can be associated with multiple related entities. For example, one Author can write many Books.
+
+3. `@ManyToOne`: 
+A ManyToOne relationship is the inverse of @OneToMany. In this case, many Books can belong to a single Author.
+
+4. `@ManyToMany`: 
+A ManyToMany relationship represents a relationship where multiple entities can be associated with multiple other entities. For example, multiple `Books` can have multiple `Categories`.
+
+<details><summary> Example Code for Entity Mapping and Relationships</summary>
+Let’s take a practical example with three entities: Author, Book, and Category.
+
+```java
+
+@Entity
+public class Author {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private List<Book> books;
+}
+
+@Entity
+public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String title;
+
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private Author author;
+
+    @ManyToMany
+    @JoinTable(
+      name = "book_category",
+      joinColumns = @JoinColumn(name = "book_id"),
+      inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories;
+}
+
+@Entity
+public class Category {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @ManyToMany(mappedBy = "categories")
+    private Set<Book> books;
+}
+
+```
+
+- The `Author` entity is linked to the `Book` entity with a `@OneToMany` relationship.
+- The `Book` entity has a `@ManyToOne` relationship with `Author` and a `@ManyToMany` relationship with `Category`.
+- The `Category` entity has a `@ManyToMany` relationship with `Book`.
+
+This setup allows each author to write multiple books, each book to belong to multiple categories, and each category to have multiple books.
+</details>
+
+### 6️⃣ JPA Cascading Operations
+One of the key features of the JPA is Cascading Operations, which allow the propagation of state changes from one entity to the related entities of the JPA application.
+
+**Different types of cascade options in JPA:**
+- `PERSIST`: When the parent is persisted (saved), the related entities are also persisted.
+- `MERGE`: When the parent is updated, the related entities are updated.
+- `REMOVE`: When the parent is deleted, the related entities are deleted.
+- `REFRESH`: If the parent is refreshed from the database, the related entities are refreshed.
+- `DETACH`: When the parent is detached from the persistence context, the related entities are also detached.
+- `ALL`: All of the above cascade operations are applied.
+
+<details><summary>Expand to view the example</summary>
+
+```java
+@Entity
+public class Author {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private List<Book> books;
+}
+```
+In this example:  
+- The `Author` entity has a list of `Book` entities.
+- The `cascade = CascadeType.ALL` tells JPA to automatically apply certain operations (like saving or deleting) to the `Book` entities when performed on the `Author`.
+</details>
+
+### 7️⃣ Fetching Strategies 
+Fetching strategies in JPA determine how and when related entities (associations) are loaded from the database when querying an entity. These strategies are essential for managing performance, particularly when dealing with large datasets and complex relationships.
+
+**JPA provides two main fetching strategies:** 
+- Eager Fetching: Loads related entities immediately along with the parent entity.
+- Lazy Fetching: Loads related entities on-demand, when they are accessed for the first time.
+
+**Choosing the Right Fetching Strategy**
+- Use **Eager Fetching** when you always need the associated entities along with the parent entity. For example, in a **OneToOne** relationship where you frequently access both sides together.
+- Use **Lazy Fetching** when associated entities are not always required and should only be fetched when accessed. This helps in optimizing performance, especially in large collections like **OneToMany**.
+However, beware of the **N+1 Select Problem** in lazy fetching. This occurs when lazy-loaded entities trigger multiple queries, significantly increasing the number of database calls.
+
+<details><summary>Examples of Fetching Strategies</summary>
+
+**Example 1:** Lazy Fetching in OneToMany   
+```Java
+@Entity
+public class Department {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Employee> employees;
+
+    // Getter and Setter methods
+}
+```
+Here, `Department` has a `OneToMany` relationship with `Employee`. Employees will only be fetched from the database when you access the `employees` field in a department object.
+
+**Example 2:** Eager Fetching in ManyToOne
+```java
+@Entity
+public class Employee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Department department;
+
+    // Getter and Setter methods
+}
+```
+In this case, when you load an `Employee` entity, its associated `Department` is fetched eagerly.
+</details>
+
+### 8️⃣ Paging and Sorting
+**Pagination** is the process of breaking down a large dataset into smaller, manageable pages. Instead of loading all the data in one go, we retrieve one page at a time. This is especially useful for handling large datasets in a memory-efficient way.
+
+**Sorting** allows data to be ordered in ascending or descending order based on one or more fields.
+
+Spring Data JPA provides the following interfaces for pagination and sorting:
+- **Pageable:** This interface is used to create pagination information, such as the page number and the number of records per page.
+- **Sort:** This interface helps to define the sorting logic, such as sorting by a field in ascending or descending order.
+
+Both of these interfaces can be passed as parameters to repository methods.
+
+**Example:** Paginating Through Books  
+```Java
+@Autowired
+private BookRepository bookRepository;
+
+public void getPaginatedBooks(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Book> bookPage = bookRepository.findAll(pageable);
+
+    List<Book> books = bookPage.getContent();  // Get the list of books on the current page
+    int totalPages = bookPage.getTotalPages();  // Get total number of pages
+    long totalElements = bookPage.getTotalElements();  // Get total number of elements
+
+    System.out.println("Total Pages: " + totalPages);
+    System.out.println("Total Elements: " + totalElements);
+    books.forEach(System.out::println);  // Print the books on the current page
+}
+```
+In this example:  
+- **PageRequest.of(page, size)** creates a **Pageable** object for the specified page number and page size.
+- The **Page<Book>** object contains the books for that page, along with additional information like total pages and total elements.
+
+**Example:** Sorting `Books` by Title
+```Java
+@Autowired
+private BookRepository bookRepository;
+
+public void getSortedBooks() {
+    List<Book> books = bookRepository.findAll(Sort.by("title").ascending());
+    books.forEach(System.out::println);  // Print the sorted books
+}
+```
+This will sort the books in ascending order by their **title** field. You can also sort in descending order by using **.descending().**
+
+**Combining Pagination and Sorting**
+```Java
+public void getPaginatedAndSortedBooks(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
+    Page<Book> bookPage = bookRepository.findAll(pageable);
+
+    List<Book> books = bookPage.getContent();
+    books.forEach(System.out::println);
+}
+
+```
+
+### 9️⃣ Database Locking
+Locking mechanisms in databases are used to prevent dirty reads, non-repeatable reads, and phantom reads by managing access to data when multiple transactions occur. Locking ensures data consistency and integrity, especially in concurrent environments.
+
+**Types of Locking in JPA**  
+1. **Optimistic Locking:**
+    - **Definition:** Optimistic locking assumes that multiple transactions can complete without affecting each other, and it only checks for conflicts at the time of committing.
+    - **Usage:** Best suited for scenarios where data conflicts are rare.
+    - **How It Works:** Entities are checked for modifications using a version field (usually a column like `@Version`). If the version doesn't match during a commit, it indicates a conflict, and an exception is thrown.
+    Annotations: `@Version`
+2. **Pessimistic Locking:**
+    - **Definition:** Pessimistic locking assumes that conflicts will occur, and it locks the data from the moment a transaction starts until it completes.
+    **Usage:** Best for cases where there's a high likelihood of conflicts.
+    **How It Works:** A row is locked in the database until the transaction completes, ensuring that no other transactions can modify the data.
+    **Annotations:** `LockModeType.PESSIMISTIC_READ`, `LockModeType.PESSIMISTIC_WRITE`
+
+**When to Use Optimistic vs. Pessimistic Locking**
+1. Optimistic Locking
+    - Use when the likelihood of concurrent data conflicts is low.
+    - Best for systems with high read-to-write ratios.
+    - Example: A ticket booking system where many users are querying availability but only a few are confirming purchases at the same time.
+2. Pessimistic Locking
+    - Use when the likelihood of conflicts is high.
+    - Best for systems where data consistency is critical.
+    - Example: A financial system where multiple transactions on the same account need to be processed in a strictly serialized manner.
+
+### 🔟 Transactions in Spring
+In any real-world application, especially when interacting with databases, managing data integrity is crucial. Transactions allow us to ensure that a group of operations are executed in an "all-or-nothing" fashion. This means that if one operation fails, all changes made by other operations in the transaction should be rolled back, leaving the system in a consistent state.  
+
+**Key Points**  
+Use `@Transactional` at the **service** layer where business logic and database operations are managed.
+By default, `@Transactional` rolls back on RuntimeExceptions or unchecked exceptions.
+Transactions ensure data consistency and integrity, making them crucial in systems that handle financial operations, order processing, and more.
+
+## Spring Security
+Spring Security is a robust framework that enhances Java EE applications by adding essential security features. It acts as a collection of filters that manage authentication, authorization, and protection. This library ensures that applications are secure, user identities are verified, access is properly controlled, and vulnerabilities are mitigated effectively.
+
+`Authentications:` To verify the identity of users.  
+`Authorizations:` To control the access to resources based on permissions.  
+`Protections:` To protect applications from frequent and well-known security threats.  
+
+To enable Spring Security support, we need to add the `spring-boot-starter-security` dependency in our Spring MVC application.
+
+### 1️⃣ Internal Working of Spring Security
+In a Spring Boot application, `SecurityFilterAutoConfiguration` automatically registers the `DelegatingFilterProxy` filter with the name springSecurityFilterChain. Once the request reaches to DelegatingFilterProxy, Spring delegates the processing to `FilterChainProxy` bean that utilizes the `SecurityFilterChain` to execute the list of all filters to be invoked for the current request.
+
+- `SecurityFilterAutoConfiguration`: Automatically registers the `DelegatingFilterProxy` filter under the name springSecurityFilterChain.  
+- `DelegatingFilterProxy`: This filter intercepts incoming HTTP requests and delegates their processing to the `FilterChainProxy`.
+- `FilterChainProxy`: The `FilterChainProxy` bean manages a list of security filters defined in the `SecurityFilterChain`. It determines which filters should be applied to the current request.
+- `SecurityFilterChain`: This component contains the filters that will be executed in sequence for the request, handling various security aspects like authentication, authorization, etc.
+
+**Imagine if This Situation:**  
+Your Spring Boot application is like a mall. The mall has various sections, like stores, a food court, and a VIP lounge. Some areas are open to everyone, while others (like the VIP lounge) require special access.
+
+- In this mall analogy, Spring Security’s `DelegatingFilterProxy` is the main security gate.
+- This gate ensures that every visitor is routed through the appropriate security checkpoints (filters) managed by the `FilterChainProxy`.
+- Each checkpoint in the `SecurityFilterChain` ensures that only authorized and authenticated visitors access restricted areas.  
+- If you clear all the necessary checkpoints, you can freely explore the mall, including the restricted VIP areas.
+
+### 2️⃣ Core Spring Security Components
+Core Spring Security components are used throughout a Spring Boot application to manage authentication, authorization, and overall security. Here’s where and how these components are typically used:
+
+1. UserDetails Interface:  
+    - The **UserDetails** interface represents a user in the Spring Security framework. It provides methods to get user information such as username, password, and authorities.
+    - **Purpose:** To encapsulate user information, including authentication and authorization details.
+    - **Implementation:** You can use it to extend your User Entity.
+ 
+2. UserDetailsService Interface:  
+    - The **UserDetailsService** interface is a core component in Spring Security that is used to retrieve user-related data. It has a single method: *loadUserByUsername()*.
+    - **Purpose:** To fetch user details from a datasource (e.g., database) based on the username.
+    - **Implementation:** You typically implement this interface to load user details, such as username, password, and roles, from your own user repository.
+ 
+3. InMemoryUserDetailsManager Interface:
+    - The **InMemoryUserDetailsManager** is a Spring Security provided implementation of **UserDetailsService** that stores user information in memory.
+    - **Purpose:**To store user details in memory, typically for testing or small applications. You define users directly in the configuration.
+ 
+4. PasswordEncoder Interface: 
+    - The **PasswordEncoder** interface is used for encoding and validating passwords. It has methods for encoding raw passwords and matching encoded passwords.
+    - **Purpose:** To securely hash passwords before storing them and to verify hashed passwords during authentication.
+    - Common Implementations: 
+        - BCryptPasswordEncoder 
+        - Pbkdf2PasswordEncoder 
+        - SCryptPasswordEncoder
+
+### 3️⃣ Understanding JWT
+JWT stands for JSON Web Token. A JSON Web Token is a digitally signed token used to securely transmit information between parties in a compact format. It’s like a digital passport that allows users to access different parts of a web application without having to repeatedly log in. The token itself contains all the necessary information, and its signature ensures that the data has not been tampered with. This makes JWT a powerful tool for enabling stateless authentication, where the server doesn’t need to remember who you are, but can still trust the information you provide each time you interact with it.
+
+1. **JWT Creation**  
+Think of JWT as a digitally signed message. It consists of three parts: a header, payload(which contains the data), and a signature (which ensures that the message hasn’t been tampered with)
+    - **Sample Token:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9`.`eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ`.`SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`
+    - **JWT Header:**  Contains metadata about the token, such as the signing algorithm (`HS256`) and token type (`JWT`).
+    - **JWT Payload:** Contains the claims (e.g., user information, expiration time).
+    - **Secret Key:** Used to sign the token, ensuring its integrity.
+    - **Signature Generation:**
+        - The encoded header and payload are concatenated with a period (`.`) in between.
+        - This concatenated string is hashed using the HMAC-SHA256 algorithm, along with the secret key.
+        - The result is base64url encoded to produce the encoded signature.
+    
+    - **Final Token:** The token is the concatenation of the encoded header, payload, and signature, separated by periods (.).
+## Random Terminology
+### Stateful vs. Stateless Architecture
+**Stateful** architecture maintains client session data on servers, while **stateless** architecture treats each request independently.
 
 ## 🧩 Featured Projects  
 ### 1. Task Management System - [Console Application](/core_java/task_management_system%20console_app/)
