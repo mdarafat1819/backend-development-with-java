@@ -18,6 +18,103 @@ java-backend-journey/       # Central repository showcasing my overall backend d
 
 # 📚 Covered Topics - [Core Java](/core_java/)
 
+## Java Quickstart
+In Java, every application begins with a **class**,  and class name must match the filename.  
+📄 File: `Main.java`  
+```java
+public class Main {
+  public static void main(String[] args) {
+    System.out.println("Hello World");
+  }
+}
+```
+⚙️ Compile and Run
+```bash
+# Compile the program
+javac Main.java
+# Run the program
+java Main
+```
+### 1️⃣ Java Syntax
+- Class names should start with an **uppercase letter**
+- Java is **case-sensitive**
+  - `MyClass` ≠ `myclass`
+- Single-line comments: `//`
+- Multi-line comments: `/* ... */`
+
+### 2️⃣ Data Types Overview
+1. Primitive Types
+    - `byte`, `short`, `int`, `long`
+    - `float`, `double`
+    - `boolean`
+    - `char`
+2. Non-Primitive Types
+    - `String` **•** `Arrays` **•** `Classes` & `Objects`
+3. Type Casting in Java
+
+    - **Widening Casting (automatic)** - converting a smaller type to a larger type size
+    `byte` -> `short` -> `char` -> `int` -> `long` -> `float` -> `double`
+
+    - **Narrowing Casting (manual)** - converting a larger type to a smaller type size
+    `double` -> `float` -> `long` -> `int` -> `char` -> `short` -> `byte`  
+### 3️⃣ Conditional Branching
+Conditions and if statements let you control the flow of your program - deciding which code runs, and which code is skipped.
+1. **if-else**
+    ```Java
+    int temperature = 30;
+
+    if (temperature < 0) {
+      System.out.println("It's freezing!");
+    } else if (temperature < 20) {
+      System.out.println("It's cool.");
+    } else {
+      System.out.println("It's warm.");
+    } 
+    ```
+2. **switch**
+Instead of writing many if..else statements, you can use the switch statement.
+    ```Java
+    int day = 4;
+    switch (day) {
+      case 6:
+        System.out.println("Today is Saturday");
+        break;
+      case 7:
+        System.out.println("Today is Sunday");
+        break;
+      default:
+        System.out.println("Looking forward to the Weekend");
+    }
+    ```
+### 4️⃣ Looping
+1. while Loop
+    ```Java
+    while (condition) {
+      // code block to be executed
+    }
+    ```
+2. do-while Loop
+    ```Java
+    do {
+      // code block to be executed
+    }
+    while (condition);
+    ```
+3. for Loop
+    ```Java 
+    for (statement 1; statement 2; statement 3) {
+      // code block to be executed
+    }
+    ```
+4. for-each Loop
+    ```Java
+    String[] cars = {"Volvo", "BMW", "Ford", "Mazda"};
+
+    for (String car : cars) {
+      System.out.println(car);
+      }
+    ```
+
 **Java Basics**  
 **•** Syntax **•** Variables **•** Data Types **•** Operators **•** Strings **•** Math **•** Conditions **•** Loops **•** Arrays
 
