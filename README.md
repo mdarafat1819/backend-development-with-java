@@ -57,7 +57,60 @@ java Main
 
     - **Narrowing Casting (manual)** - converting a larger type to a smaller type size
     `double` -> `float` -> `long` -> `int` -> `char` -> `short` -> `byte`  
-### 3️⃣ Conditional Branching
+### 3️⃣ Variables
+1. Declaring Variables
+    ```bash
+    type variableName = value;
+    ```
+2. Example
+    ```Java
+    // Student data
+    int studentID = 15;
+    float studentFee = 75.25f;
+    char studentGrade = 'B';
+    String studentName = "John Doe";
+    final int BIRTHYEAR = 1980;
+    ```
+3. Array
+    ```Java
+    //Method 1:
+    String[] cars = new String[5];
+
+    //Method 2:
+    String[] cars = {"Volvo", "BMW", "Ford", "Mazda"};
+
+    System.out.println(cars[0]); //access the elements of an array
+    cars[0] = "Opel"; //change an array element
+    System.out.println(cars.length); //To find out how many elements an array has, use the length property.
+    ```
+### 4️⃣ Java User Input/Output
+- The `Scanner` class is used to get user input, and it is found in the `java.util` package.
+- To use the `Scanner` class, create an object of the class and use any of the available methods found in the Scanner class documentation.
+    ```java
+    Scanner myObj = new Scanner(System.in);  // Create a Scanner object
+    System.out.println("Enter username");
+
+    String userName = myObj.nextLine();  // Read user input
+    System.out.println("Username is: " + userName);  // Output user input
+    ```
+- Input Types:  
+In the example above, we used the nextLine() method, which is used to read Strings. To read other types, look at the table below:
+    ```bash
+    nextBoolean()	# Reads a boolean value from the user
+    nextByte()	# Reads a byte value from the user
+    nextDouble()	# Reads a double value from the user
+    nextFloat()	# Reads a float value from the user
+    nextInt()	    # Reads a int value from the user
+    nextLine()	# Reads a String value from the user
+    nextLong()	# Reads a long value from the user
+    nextShort()	# Reads a short value from the user
+    ```
+- You can use the `println()`, `print()` method to output values or print text in Java.  
+    - System.out.println("Hello World!");
+    - System.out.print("Hello World! ");
+
+
+### 5️⃣ Conditional Branching
 Conditions and if statements let you control the flow of your program - deciding which code runs, and which code is skipped.
 1. **if-else**
     ```Java
@@ -86,7 +139,7 @@ Instead of writing many if..else statements, you can use the switch statement.
         System.out.println("Looking forward to the Weekend");
     }
     ```
-### 4️⃣ Looping
+### 6️⃣ Looping
 1. while Loop
     ```Java
     while (condition) {
@@ -115,23 +168,249 @@ Instead of writing many if..else statements, you can use the switch statement.
       }
     ```
 
-**Java Basics**  
-**•** Syntax **•** Variables **•** Data Types **•** Operators **•** Strings **•** Math **•** Conditions **•** Loops **•** Arrays
+### 7️⃣ Java Methods
+```Java
+public class Main {
+  static void myMethod(String fname) {
+    System.out.println(fname + " Refsnes");
+  }
 
-**Methods**  
-**•** Parameters **•** Overloading **•** Scope **•** Recursion
+  public static void main(String[] args) {
+    myMethod("Liam");
+    myMethod("Jenny");
+    myMethod("Anja");
+  }
+}
+// Liam Refsnes
+// Jenny Refsnes
+// Anja Refsnes
+```
+### 8️⃣ Java Exceptions
+1. Syntax
+    ```Java
+    try {
+    //  Block of code to try
+    }
+    catch(Exception e) {
+    //  Block of code to handle errors
+    }
+    finally {
+      // The finally statement lets you execute code, after try...catch
+    }
+    ```
+2. The `throw` keyword
+    - The `throw` statement allows you to create a custom error.
+    - The `throw` statement is used together with an **exception type**. There are many exception types available in Java: `ArithmeticException`, `FileNotFoundException`, `ArrayIndexOutOfBoundsException`, `SecurityException` etc.
+    ```Java
+    public void checkAge(int age) {
+        if (age < 18) {
+             throw new ArithmeticException("Access denied - You must be at least 18 years old.");
+        }
+        else {
+            System.out.println("Access granted - You are old enough!");
+        }
+    }
+    ```
+3. Multi-Catch
+    ```Java
+    try {
+        int result = 10 / 0;
+        int[] numbers = {1, 2, 3};
+        System.out.println(numbers[10]);
+    } 
+        catch (ArithmeticException | ArrayIndexOutOfBoundsException e) {
+        System.out.println("Math error or array error occurred.");
+    }
+    ```
+4. try-with-resources
+    ```Java
+    public class Main {
+        public static void main(String[] args) {
+            // resource is opened inside try()
+            try (FileOutputStream output = new FileOutputStream("filename.txt")) {
+                output.write("Hello".getBytes());
+                // no need to call close() here
+                System.out.println("Successfully wrote to the file.");
+            } catch (IOException e) {
+                System.out.println("Error writing file.");
+            }
+        }
+    }
+    ```
+    **Why use try-with-resources?**
+    - Safer - resources are always closed, even if an exception occurs.
+    - Cleaner - no need to write close() calls.
+    - Shorter code - less boilerplate, easier to read.
+## Java Collections & Data Structure
+The Java Collections Framework provides a set of **interfaces** (like `List`, `Set`, and `Map`) and a set of **classes** (`ArrayList`, `HashSet`, `HashMap`, etc.) that implement those interfaces.  
+All of these are part of the `java.util` package.
 
-**Object-Oriented Programming (OOP)**  
-**•** Encapsulation **•** Inheritance **•** Polymorphism **•** Abstraction **•** Interfaces **•** Enums **•** Inner Classes **•** Anonymous Classes
+| Class | Interface | Description |
+| :--- | :--- | :--- |
+| `ArrayList` | **List** | Resizable array that maintains order and allows duplicates |
+| `LinkedList` | **List** | List with fast insert and remove operations |
+| `HashSet` | **Set** | Unordered collection of unique elements |
+| `TreeSet` | **Set** | Sorted set of unique elements (natural order) |
+| `LinkedHashSet` | **Set** | Maintains the order in which elements were inserted |
+| `HashMap` | **Map** | Stores key/value pairs with no specific order |
+| `TreeMap` | **Map** | Sorted map based on the natural order of keys |
+| `LinkedHashMap` | **Map** | Maintains the order in which keys were inserted |
 
-**Exceptions & Debugging**  
-**•** Try-Catch **•** Multiple Exceptions **•** Try-with-resources
+**When & What to Use in Java Collections**:
+- Use `List` classes when you care about order, you may have duplicates, and want to access elements by index.
+- Use `Set` classes when you need to store unique values only.
+- Use `Map` classes when you need to store pairs of keys and values, like a name and its phone number.  
 
-**File Handling & I/O**  
-**•** File Read **•** File Write **•** File Delete **•** Streams **•** BufferedReader **•** BufferedWriter
+### 1️⃣ Java List
+The `List` interface is part of the Java Collections Framework and represents an ordered collection of elements.
+- You can access elements by their **index**, **add duplicates**, and maintain the insertion **order**.
+- Since `List` is an interface, you **cannot** create a List object directly.
+- Instead, you use a class that implements the List interface, such as:
+    - `ArrayList` - like a resizable array with fast random access
+    - `LinkedList` - like a train of cars you can easily attach or remove
 
-**Collections & Data Structures**  
-**•** List **•** Set **•** Map **•** ArrayList **•** LinkedList **•** HashMap **•** TreeMap **•** Iterators **•** Algorithms
+```Java
+ List<String> cars = new ArrayList<String>();
+ List<String> cars = new LinkedList<String>();
+```    
+| Method   | Description                                           |
+|----------|-------------------------------------------------------|
+| add()    | Adds an element to the end of the list               |
+| get()    | Returns the element at the specified position        |
+| set()    | Replaces the element at the specified position       |
+| remove() | Removes the element at the specified position        |
+| size()   | Returns the number of elements in the list           |
+
+**Sort a List**: 
+```java
+ Collections.sort(cars);  // Ascending order
+ Collections.sort(cars, Collections.reverseOrder()); // Descending order
+```
+### 2️⃣ Java Set
+The `Set` interface is part of the Java Collections Framework and is used to store a collection of **unique** elements.
+
+Unlike a `List`, a `Set` does **not allow duplicates**, and it does **not preserve the order** of elements (unless you're using `TreeSet` or `LinkedHashSet`).
+
+**Common classes that implement `Set`:**
+- `HashSet` - fast and unordered
+- `TreeSet` - sorted set
+- `LinkedHashSet` - ordered by insertion
+
+```Java
+Set<String> cars = new HashSet<String>();
+TreeSet<String> cars = new TreeSet<>();
+Set<String> cars = new LinkedHashSet<>();
+// Loop Through a XSet
+for (String i : cars) {
+  System.out.println(i);
+}
+```
+
+| Method      | Description                                      |
+|------------|--------------------------------------------------|
+| add()      | Adds an element if it's not already in the set  |
+| remove()   | Removes the element from the set                |
+| contains() | Checks if the set contains the element          |
+| size()     | Returns the number of elements                  |
+| clear()    | Removes all elements                            |
+
+### 3️⃣ Java Map
+The Map interface is a part of the Java Collections Framework and is used to **store key-value pairs**. **Each key must be unique, but values can be duplicated.**
+
+**Common classes that implement Map:**
+- `HashMap` - fast and unordered
+- `TreeMap` - sorted by key
+- `LinkedHashMap` - ordered by insertion
+
+```Java
+Map<String, String> capitalCities = new HashMap<>();
+Map<String, String> capitalCities = new TreeMap<>();
+Map<String, String> capitalCities = new LinkedHashMap<>();
+
+// Print keys
+for (String i : capitalCities.keySet()) {
+  System.out.println(i);
+}
+// Print values
+for (String i : capitalCities.values()) {
+  System.out.println(i);
+}
+```
+
+| Method         | Description                              |
+|---------------|------------------------------------------|
+| put()         | Adds or updates a key-value pair         |
+| get()         | Returns the value for a given key        |
+| remove()      | Removes the key and its value            |
+| containsKey() | Checks if the map contains the key       |
+| keySet()      | Returns a set of all keys                |
+
+### 4️⃣ Iterators 
+- An `iterator` is a way to loop through elements in a data structure.
+- It is called an **iterator** because **iterating** is the technical term for looping.
+    ```Java
+        // Create an ArrayList of Strings
+        ArrayList<String> cars = new ArrayList<String>();
+        cars.add("Volvo");
+        cars.add("BMW");
+
+        // Get an iterator for the ArrayList
+        Iterator<String> it = cars.iterator();
+
+        // Iterate through the list using the iterator
+        while(it.hasNext()) {
+            System.out.println(it.next());
+        }
+    ```
+### 5️⃣ Algorithms
+Algorithms are used to solve problems by sorting, searching, and manipulating data structures.
+
+In Java, many useful algorithms are already built into the Collections class (found in the `java.util` package), so you don't have to write them from scratch.
+
+```Java
+// Searching & Sorting
+Collections.sort(names); // must be sorted first
+int index = Collections.binarySearch(names, "Angie");
+System.out.println("Angie is at index: " + index);
+// Reverse order sorting
+Collections.sort(list, Collections.reverseOrder())
+```
+**The Collections class contains many more algorithms, such as:**
+- `Collections.max()` - find the largest element
+- `Collections.min()` - find the smallest element
+- `Collections.shuffle()` - randomly shuffle elements
+- `Collections.frequency()` - count how many times an element appears
+- `Collections.swap()` - swap two elements in a list  
+
+## OOP in Java
+Everything in Java is associated with classes and objects, along with its attributes and methods. For example: in real life, a car is an object. The car has **attributes**, such as weight and color, and **methods**, such as drive and brake.
+
+**Class Vs Object**   
+- Class -> Blueprint  
+- Object -> Instance of a class
+
+**Accessing Attributes**: You can access attributes by creating an object of the class, and by using the dot syntax (`.`).
+```Java
+// Create a Main class
+public class Main {
+  int x;  // Create a class attribute
+
+  // Create a class constructor for the Main class
+  public Main() {
+    x = 5;  // Set the initial value for the class attribute x
+  }
+  // Constructor with parameter
+  public Main(int x) {
+    this.x = x;
+  }
+
+  public static void main(String[] args) {
+    Main myObj = new Main(); // Create an object of class Main (This will call the constructor)
+    System.out.println(myObj.x); // Print the value of x
+  }
+}
+// Outputs 5
+```
 
 **Advanced Java**  
 **•** Wrapper Classes **•** Generics **•** Annotations **•** Regex **•** Threads **•** Lambda Expressions
