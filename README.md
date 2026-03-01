@@ -411,9 +411,369 @@ public class Main {
 }
 // Outputs 5
 ```
+### 1️⃣ Java Modifiers
+Modifiers define **access level** and **behavior** of classes, methods, and variables.  
+**Types of Modifiers:**  
+- Access Modifiers - controls the access level
+- Non-Access Modifiers - do not control access level, but provides other functionality  
 
-**Advanced Java**  
-**•** Wrapper Classes **•** Generics **•** Annotations **•** Regex **•** Threads **•** Lambda Expressions
+1. Access Modifiers  
+For **classes:**
+    - `public` : The class is accessible by any other class
+    -  `default`: The class is only accessible by classes in the same package.
+
+    For **attributes, methods and constructors:**
+    - `public`:	The code is accessible for all classes	
+    - `private`: The code is only accessible within the declared class	
+    - `default`: The code is only accessible in the same package. This is used when you don't specify a modifier.
+    - `protected`: The code is accessible in the same package and subclasses. 
+
+2. Non-Access Modifiers  
+Non-access modifiers do not control visibility (like public or private), but instead **add other features** to classes, methods, and attributes.
+The most commonly used non-access modifiers are `final`, `static`, and `abstract`.  
+    - `final`: If you don't want the ability to override existing attribute values, declare attributes as final.
+    - `static`: A `static` method belongs to the class, not to any specific object. This means you can call it without creating an object of the class.
+    - `abstract`: An abstract method belongs to an abstract class, and it does not have a body. The body is provided by the subclass.
+    - `synchronized`: Methods can only be accessed by one thread at a time
+
+### 2️⃣ Java Encapsulation
+The meaning of **Encapsulation**, is to make sure that "sensitive" data is hidden from users. To achieve this, you must:
+- declare class variables/attributes as `private`
+- provide public **get** and **set** methods to access and update the value of a `private` variable
+```java
+public class Person {
+  private String name; // private = restricted access
+  // Getter
+  public String getName() {
+    return name;
+  }
+  // Setter
+  public void setName(String newName) {
+    this.name = newName;
+  }
+}
+```
+### 3️⃣ Java Inheritance
+To inherit from a class, use the `extends` keyword.
+```Java
+class Vehicle {
+}
+class Car extends Vehicle {
+}
+```
+Java **does not support multiple inheritance with classes** (to avoid the diamond problem), but it does support multiple inheritance through interfaces.  
+
+### 4️⃣ Java Abstraction
+Data **abstraction** is the process of hiding certain details and showing only essential information to the user.
+Abstraction can be achieved with either abstract classes or interfaces
+The `abstract` keyword is a non-access modifier, used for classes and methods:
+
+- **Abstract class:** is a restricted class that cannot be used to create objects (to access it, it must be inherited from another class).
+- **Abstract method:** can only be used in an abstract class, and it does not have a body. The body is provided by the subclass (inherited from).  
+
+**An abstract class can have both abstract and regular methods:**
+```Java
+abstract class Animal {
+  public abstract void animalSound();
+  public void sleep() {
+    System.out.println("Zzz");
+  }
+}
+```
+
+Another way to achieve **abstraction** in Java, is with **interfaces**.  
+An `interface` is a completely "**abstract class**" that is used to group related methods with empty bodies:
+```Java
+// interface
+interface Animal {
+  public void animalSound(); // interface method (does not have a body)
+  public void run(); // interface method (does not have a body)
+}
+```
+To access the `interface` methods, the interface must be "**implemented**" (kinda like inherited) by another class with the `implements` keyword (instead of `extends`). The body of the interface method is provided by the "**implement**" class:
+```Java
+// Interface
+interface Animal {
+  public void animalSound(); // interface method (does not have a body)
+  public void sleep(); // interface method (does not have a body)
+}
+
+// Pig "implements" the Animal interface
+class Pig implements Animal {
+  public void animalSound() {
+    // The body of animalSound() is provided here
+    System.out.println("The pig says: wee wee");
+  }
+  public void sleep() {
+    // The body of sleep() is provided here
+    System.out.println("Zzz");
+  }
+}
+
+class Main {
+  public static void main(String[] args) {
+    Pig myPig = new Pig();  // Create a Pig object
+    myPig.animalSound();
+    myPig.sleep();
+  }
+}
+```
+**Note on Interfaces:**  
+- Interface methods do not have a body - the body is provided by the "**implement**" class
+- On implementation of an interface, **you must override all of its methods**.
+- Interface methods are by default `abstract` and `public`
+- Interface attributes are by default `public`, `static` and `final`.
+- An interface cannot contain a constructor (as it cannot be used to create objects)
+
+### 5️⃣ Java Anonymous Class
+An anonymous class is a class without a name. It is created and used at the same time.  
+You often use anonymous classes to **override methods** of an existing class or interface, without writing a separate class file.
+
+```Java
+// Normal class
+class Animal {
+  public void makeSound() {
+    System.out.println("Animal sound");
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    // Anonymous class that overrides makeSound()
+    Animal myAnimal = new Animal() {
+      public void makeSound() {
+        System.out.println("Woof woof");
+      }
+    }; // semicolon is required to end the line of code that creates the object
+
+    myAnimal.makeSound();
+  }
+}
+```
+
+### 6️⃣ Java Enums
+An `enum` is a special "class" that represents a group of **constants** (unchangeable variables, like final variables).
+```Java
+// enum class
+enum Level {
+  LOW,
+  MEDIUM,
+  HIGH
+}
+```
+**Loop Through an Enum**  
+```Java
+for (Level myVar : Level.values()) {
+  System.out.println(myVar);
+}
+```
+
+**Enum Constructor**  
+```java
+enum Level {
+  // Enum constants (each has its own description)
+  LOW("Low level"),
+  MEDIUM("Medium level"),
+  HIGH("High level");
+
+  // Field (variable) to store the description text
+  private String description;
+
+  // Constructor (runs once for each constant above)
+  private Level(String description) {
+    this.description = description;
+  }
+
+  // Getter method to read the description
+  public String getDescription() {
+    return description;
+  }
+}
+
+public class Main {
+  public static void main(String[] args) {
+    Level myVar = Level.MEDIUM; // Pick one enum constant
+    System.out.println(myVar.getDescription()); // Prints "Medium level"
+  }
+}
+```
+
+**Loop Through Enum with Constructor**  
+```Java
+for (Level myVar : Level.values()) {
+  System.out.println(myVar + ": " + myVar.getDescription());
+}
+```
+
+## Advanced Java
+### 1️⃣ Java Wrapper Classes  
+Wrapper classes provide a way to use primitive data types (`int`, `boolean`, etc..) as objects.  
+The table below shows the primitive type and the equivalent wrapper class:
+
+| Primitive Data Type | Wrapper Class |
+|---------------------|--------------|
+| byte                | Byte         |
+| short               | Short        |
+| int                 | Integer      |
+| long                | Long         |
+| float               | Float        |
+| double              | Double       |
+| boolean             | Boolean      |
+| char                | Character    |
+
+When working with Collection objects, such as `ArrayList`, where primitive types cannot be used (the list can only store objects):
+```java
+ArrayList<int> myNumbers = new ArrayList<int>(); // Invalid
+ArrayList<Integer> myNumbers = new ArrayList<Integer>(); // Valid
+```
+Since you're now working with objects, you can use certain methods to get information about the specific object.
+```java
+public class Main {
+  public static void main(String[] args) {
+    Integer myInt = 5;
+    Double myDouble = 5.99;
+    Character myChar = 'A';
+    System.out.println(myInt.intValue());
+    System.out.println(myDouble.doubleValue());
+    System.out.println(myChar.charValue());
+  }
+}
+```
+### 2️⃣ Java Generics
+Generics allow you to write classes, interfaces, and methods that work with different data types, without having to specify the exact type in advance.
+1. Generic Class
+    ```java
+    class Box<T> {
+        T value; // T is a placeholder for any data type
+        void set(T value) {
+            this.value = value;
+        }
+        T get() {
+            return value;
+        }
+    }
+    public class Main {
+        public static void main(String[] args) {
+            // Create a Box to hold a String
+            Box<String> stringBox = new Box<>();
+            stringBox.set("Hello");
+            System.out.println("Value: " + stringBox.get());
+            // Create a Box to hold an Integer
+            Box<Integer> intBox = new Box<>();
+            intBox.set(50);
+            System.out.println("Value: " + intBox.get());
+        }
+    }
+    ```
+2. Generic Method Example
+    ```java
+    public class Main {
+        // Generic method: works with any type T
+        public static <T> void printArray(T[] array) {
+            for (T item : array) {
+            System.out.println(item);
+            }
+        }
+
+        public static void main(String[] args) {
+            // Array of Strings
+            String[] names = {"Jenny", "Liam"};
+
+            // Array of Integers
+            Integer[] numbers = {1, 2, 3};
+
+            // Call the generic method with both arrays
+            printArray(names);
+            printArray(numbers);
+        }
+    }
+    ```
+Java `Collections` like `ArrayList` and `HashMap` use generics internally:
+
+### 3️⃣ Java Annotations
+**Annotations are special notes** you add to your Java code. They start with the `@` symbol.  
+They don't change how your program runs, but they give extra information to the compiler or tools.  
+**Java includes several built-in annotations. Here are some of the most commonly used:**  
+1. `@Override`: Indicates that a method overrides a method in a superclass.
+2. `@Deprecated`: Marks a method or class as outdated or discouraged from use.
+3. `@SuppressWarnings`: Tells the compiler to ignore certain warnings.
+
+```Java
+class Animal {
+  void makeSound() {
+    System.out.println("Animal sound");
+  }
+}
+
+class Dog extends Animal {
+  @Override // Compiler check that a method really overrides a method from a superclass.
+  void makesound() { // Typo here!
+    System.out.println("Woof!");
+  }
+
+  @Deprecated // Warns developers not to use a method because it may be removed or replaced in the future
+  static void oldMethod() {
+    System.out.println("This method is outdated.");
+  }
+}
+
+public class Main {
+  @SuppressWarnings("unchecked") //  Tells the compiler to ignore specific warnings, like "unchecked" or "deprecation"
+  public static void main(String[] args) {
+    Animal myDog = new Dog();
+    myDog.makeSound();
+  }
+}
+```
+### 4️⃣ Java Threads
+Threads allows a program to operate more efficiently by doing multiple things at the same time. Threads can be used to perform complicated tasks in the background without interrupting the main program.
+```Java
+public class Threads extends Thread {
+    public static void main(String[] args) {
+        Threads thread = new Threads();
+        thread.start();
+        for(int i = 0; i < 50; i++) {
+            System.out.println("Outside: " + i);
+        }
+    }
+    public void run() {
+        for(int i = 0; i < 50; i++) {
+            System.out.println("Inside: " + i);
+        }
+    }
+}
+```
+
+### 5️⃣ Java Regular Expressions
+Java does not have a built-in Regular Expression class, but we can import the `java.util.regex` package to work with regular expressions. The package includes the following classes:
+- `Pattern` Class - Defines a pattern (to be used in a search)
+- `Matcher` Class - Used to search for the pattern
+- `PatternSyntaxException` Class - Indicates syntax error in a regular expression pattern
+
+```java
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Main {
+  public static void main(String[] args) {
+    Pattern pattern = Pattern.compile("w3schools", Pattern.CASE_INSENSITIVE);
+    Matcher matcher = pattern.matcher("Visit W3Schools!");
+    boolean matchFound = matcher.find();
+    if(matchFound) {
+      System.out.println("Match found");
+    } else {
+      System.out.println("Match not found");
+    }
+  }
+}
+// Outputs Match found
+```
+
+**Flags**  
+Flags in the `compile()` method change how the search is performed. Here are a few of them:
+- `Pattern.CASE_INSENSITIVE` - The case of letters will be ignored when performing a search.
+- `Pattern.LITERAL` - Special characters in the pattern will not have any special meaning and will be treated as ordinary characters when performing a search.
+- `Pattern.UNICODE_CASE` - Use it together with the CASE_INSENSITIVE flag to also ignore the case of letters outside of the English alphabet
 
 # 📚 Covered Topics - [Spring Boot](task_management_system/)
 **Spring boot** is an extension of the Spring-Framework that simplifies the creation of stand-alone, production-grade Spring-based applications. It provides a fast and efficient way to develop Spring applications with minimal configuration.   
