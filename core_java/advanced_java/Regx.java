@@ -2,7 +2,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Regx {
-    public static void main(JavaString[] args) {
+    public static void main(String[] args) {
         Pattern pattern = Pattern.compile("W3schools", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher("Visiti W3Schools!");
 
