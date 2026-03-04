@@ -17,6 +17,7 @@ import com.example.task_management_system.exceptions.UserNotFoundException;
 import com.example.task_management_system.repositories.TempUserRepository;
 import com.example.task_management_system.repositories.UserRepository;
 import com.example.task_management_system.security.JwtUtil;
+import com.example.task_management_system.services.email.EmailOtpService;
 
 import jakarta.transaction.Transactional;
 

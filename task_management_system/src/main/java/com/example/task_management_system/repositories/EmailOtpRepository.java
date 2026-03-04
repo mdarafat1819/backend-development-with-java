@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.task_management_system.entities.EmailOtp;
 
-public interface EmailOtpRepository extends JpaRepository<EmailOtp, Long> {
+public interface EmailOtpRepository extends JpaRepository<EmailOtp, String> {
     Optional<EmailOtp> findByEmail(String email);
     void deleteByEmail(String email);
 }

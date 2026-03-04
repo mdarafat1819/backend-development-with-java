@@ -112,7 +112,11 @@
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-database-postgresql</artifactId>
 </dependency>
-
+<dependency>
+	<groupId>com.sendgrid</groupId>
+	<artifactId>sendgrid-java</artifactId>
+	<version>4.10.1</version>
+</dependency>
 
 	</dependencies>
 

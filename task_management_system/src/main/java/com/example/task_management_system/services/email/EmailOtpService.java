@@ -1,4 +1,4 @@
-package com.example.task_management_system.services;
+package com.example.task_management_system.services.email;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -7,17 +7,16 @@ import org.springframework.stereotype.Service;
 
 import com.example.task_management_system.entities.EmailOtp;
 import com.example.task_management_system.repositories.EmailOtpRepository;
-
 import jakarta.transaction.Transactional;
 
 @Service
 public class EmailOtpService {
     private final EmailOtpRepository emailOtpRepository;
-    private final EmailService emailService;
+    private final MailSender mailSender;
 
-    public EmailOtpService(EmailOtpRepository emailOtpRepository, EmailService emailService) {
+    public EmailOtpService(EmailOtpRepository emailOtpRepository, MailSender mailSender) {
         this.emailOtpRepository = emailOtpRepository;
-        this.emailService = emailService;
+        this.mailSender = mailSender;
     }
 
     private String generateOtp() {
@@ -27,8 +26,7 @@ public class EmailOtpService {
 
     @Transactional
     public void generateAndSendOtp(String email) {
-        emailOtpRepository.deleteByEmail(email);
-
+       // emailOtpRepository.deleteByEmail(email);
         EmailOtp  emailOtp = new EmailOtp();
         emailOtp.setEmail(email);
         emailOtp.setOtp(generateOtp());
@@ -36,8 +34,11 @@ public class EmailOtpService {
 
         emailOtpRepository.save(emailOtp);
 
-        emailService.sendOtpEmail(email, emailOtp.getOtp());
-       // return emailOtp.getOtp();
+        String subject = "OTP Service";
+        String message =  "Dear User,\nYour OTP is: "+ emailOtp.getOtp() + 
+            "\nThis OTP will expire in 5 minutes." + "\nDo not share this OTP with anyone.";
+
+       mailSender.send(email, subject, message);
 
     }
 

@@ -2,6 +2,8 @@ package com.example.task_management_system.entities;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
@@ -17,9 +19,6 @@ public class TempUser {
     private String firstName;
     private String lastName;
     private String password;
+    @UpdateTimestamp
     private LocalDateTime submittedAt;
-    @PrePersist
-    protected void onCreate() {
-        this.submittedAt = LocalDateTime.now();
-    }
 }
