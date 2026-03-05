@@ -768,6 +768,16 @@ public class Main {
 }
 // Outputs Match found
 ```
+| Method        | Cursor Behavior            | Notes                        |
+| ------------- | -------------------------- | ---------------------------- |
+| `matches()`   | Moves to end of string     | Full match only              |
+| `find()`      | Moves to end of last match | Can be called repeatedly     |
+| `lookingAt()` | Moves to end of match      | Starts at current cursor     |
+| `reset()`     | Cursor → 0                 | Useful for repeated searches |
+
+
+
+
 
 **Flags**  
 Flags in the `compile()` method change how the search is performed. Here are a few of them:
