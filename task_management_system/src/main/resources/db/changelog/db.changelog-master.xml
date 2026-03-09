@@ -9,5 +9,8 @@
     <changeSet id="1" author="yeasin">
         <sqlFile path="db/changelog/changes/V1__test.sql"/>
     </changeSet>
+    <changeSet id="2" author="yeasin">
+        <sqlFile path="db/changelog/changes/V2__create email_logs.sql"/>
+    </changeSet>
 
 </databaseChangeLog>

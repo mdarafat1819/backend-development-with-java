@@ -25,7 +25,7 @@ public class EmailOtpService {
     }
 
     @Transactional
-    public void generateAndSendOtp(String email) {
+    public void generateAndSendOtp(String email, String apiPath) {
        // emailOtpRepository.deleteByEmail(email);
         EmailOtp  emailOtp = new EmailOtp();
         emailOtp.setEmail(email);
@@ -38,7 +38,7 @@ public class EmailOtpService {
         String message =  "Dear User,\nYour OTP is: "+ emailOtp.getOtp() + 
             "\nThis OTP will expire in 5 minutes." + "\nDo not share this OTP with anyone.";
 
-       mailSender.send(email, subject, message);
+       mailSender.send(email, subject, message, apiPath);
 
     }
 

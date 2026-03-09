@@ -58,7 +58,7 @@ public class UserService {
         tempUser.setPassword(passwordEncoder.encode(request.getPassword()));
 
         tempUserRepository.save(tempUser);
-        emailOtpService.generateAndSendOtp(request.getEmail());
+        emailOtpService.generateAndSendOtp(request.getEmail(), "USER_REGISTRATION");
     }
 
     public AuthResponse login(String email, String password) {

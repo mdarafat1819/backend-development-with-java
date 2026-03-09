@@ -15,7 +15,7 @@ public class SmtpMailSender implements MailSender {
     }
 
     @Override
-    public void send(String toEmail, String subject, String message) {
+    public void send(String toEmail, String subject, String message, String apiPath) {
         SimpleMailMessage mailContents = new SimpleMailMessage();
 
         mailContents.setTo(toEmail);
