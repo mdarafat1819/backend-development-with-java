@@ -3,6 +3,7 @@ package com.example.task_management_system.services.email;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.example.task_management_system.entities.EmailOtp;
@@ -14,7 +15,7 @@ public class EmailOtpService {
     private final EmailOtpRepository emailOtpRepository;
     private final MailSender mailSender;
 
-    public EmailOtpService(EmailOtpRepository emailOtpRepository, MailSender mailSender) {
+    public EmailOtpService(EmailOtpRepository emailOtpRepository,  @Qualifier("twilioMailSender")MailSender mailSender) {
         this.emailOtpRepository = emailOtpRepository;
         this.mailSender = mailSender;
     }

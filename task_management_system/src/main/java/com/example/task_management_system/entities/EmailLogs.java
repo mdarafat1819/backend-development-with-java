@@ -14,7 +14,7 @@ public class EmailLogs {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private String userId;
     private String recipientEmail;

@@ -9,9 +9,9 @@ import com.example.task_management_system.services.email.impl.TwilioMailSender;
 
 @Configuration
 public class TwilioConfig {
-    @Bean
-    @Primary
-    public MailSender twilioMailSender() {
-        return new TwilioMailSender();
-    }
+    // @Bean
+    // @Primary
+    // public MailSender twilioMailSender() {
+    //     return new TwilioMailSender();
+    // }
 }

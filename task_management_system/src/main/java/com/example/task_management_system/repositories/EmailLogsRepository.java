@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.example.task_management_system.entities.EmailLogs;
 
 @Repository
-public interface EmailLogsRepository extends JpaRepository<EmailLogs, Long> {
+public interface EmailLogsRepository extends JpaRepository<EmailLogs, Integer> {
 
 } 

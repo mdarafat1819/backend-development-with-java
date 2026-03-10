@@ -36,7 +36,7 @@ CREATE TABLE task (
 
 -- EMAIL_LOGS Table
 CREATE TABLE email_logs (
-    id BIGINT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id VARCHAR(255),
     recipient_email VARCHAR(255),
     sender_email VARCHAR(255),
