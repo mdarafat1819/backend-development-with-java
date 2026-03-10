@@ -7,10 +7,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="1" author="yeasin">
-        <sqlFile path="db/changelog/changes/V1__test.sql"/>
-    </changeSet>
-    <changeSet id="2" author="yeasin">
-        <sqlFile path="db/changelog/changes/V2__create email_logs.sql"/>
+        <sqlFile path="db/changelog/changes/V1__init_schema.sql"/>
     </changeSet>
 
 </databaseChangeLog>

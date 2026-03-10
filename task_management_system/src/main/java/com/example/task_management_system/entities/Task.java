@@ -4,6 +4,7 @@ import org.hibernate.annotations.ManyToAny;
 
 import com.example.task_management_system.enums.Status;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -30,7 +31,6 @@ public class Task extends AuditableEntity {
     @ManyToOne
     @JoinColumn(name = "assignee")
     private User assignee;
-
     public String getStatusDescription() {
         return status.getDescripiton();
     }
