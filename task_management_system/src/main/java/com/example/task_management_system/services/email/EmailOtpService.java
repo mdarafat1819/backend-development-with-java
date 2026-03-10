@@ -3,21 +3,21 @@ package com.example.task_management_system.services.email;
 import java.time.LocalDateTime;
 import java.util.Random;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.example.task_management_system.entities.EmailOtp;
 import com.example.task_management_system.repositories.EmailOtpRepository;
+
 import jakarta.transaction.Transactional;
 
 @Service
 public class EmailOtpService {
     private final EmailOtpRepository emailOtpRepository;
-    private final MailSender mailSender;
+    private final MailSenderFactory mailSenderFactory;
 
-    public EmailOtpService(EmailOtpRepository emailOtpRepository,  @Qualifier("twilioMailSender")MailSender mailSender) {
+    public EmailOtpService(EmailOtpRepository emailOtpRepository, MailSenderFactory mailSenderFactory) {
         this.emailOtpRepository = emailOtpRepository;
-        this.mailSender = mailSender;
+        this.mailSenderFactory = mailSenderFactory;
     }
 
     private String generateOtp() {
@@ -27,8 +27,8 @@ public class EmailOtpService {
 
     @Transactional
     public void generateAndSendOtp(String email, String apiPath) {
-       // emailOtpRepository.deleteByEmail(email);
-        EmailOtp  emailOtp = new EmailOtp();
+        // emailOtpRepository.deleteByEmail(email);
+        EmailOtp emailOtp = new EmailOtp();
         emailOtp.setEmail(email);
         emailOtp.setOtp(generateOtp());
         emailOtp.setExpiresAt(LocalDateTime.now().plusMinutes(5));
@@ -36,20 +36,18 @@ public class EmailOtpService {
         emailOtpRepository.save(emailOtp);
 
         String subject = "OTP Service";
-        String message =  "Dear User,\nYour OTP is: "+ emailOtp.getOtp() + 
-            "\nThis OTP will expire in 5 minutes." + "\nDo not share this OTP with anyone.";
+        String message = "Dear User,\nYour OTP is: " + emailOtp.getOtp() +
+                "\nThis OTP will expire in 5 minutes." + "\nDo not share this OTP with anyone.";
 
-       mailSender.send(email, subject, message, apiPath);
-
+        MailSender mailSender = mailSenderFactory.getMailSender("SMTP");
+        mailSender.send(email, subject, message, apiPath);
     }
 
-     public boolean validateOtp(String email, String otp) {
+    public boolean validateOtp(String email, String otp) {
 
         return emailOtpRepository.findByEmail(email)
-                .filter(storedOtp ->
-                        storedOtp.getOtp().equals(otp) &&
-                        storedOtp.getExpiresAt().isAfter(LocalDateTime.now())
-                )
+                .filter(storedOtp -> storedOtp.getOtp().equals(otp) &&
+                        storedOtp.getExpiresAt().isAfter(LocalDateTime.now()))
                 .isPresent();
     }
 

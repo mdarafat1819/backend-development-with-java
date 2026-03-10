@@ -21,6 +21,7 @@ public class EmailLogs {
     private String senderEmail;
     private String subject;
     private String triggeredBy;
+    private String via;
     private Integer apiResponseCode;
     private String sendGridMessageId;
     private LocalDateTime sendTime;

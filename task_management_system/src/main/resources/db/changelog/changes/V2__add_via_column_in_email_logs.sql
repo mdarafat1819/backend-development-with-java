@@ -1,0 +1,2 @@
+ALTER TABLE email_logs
+ADD via VARCHAR(50);
