@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.task_management_system.dto.TaskRequest;
 import com.example.task_management_system.dto.TaskResponse;
-import com.example.task_management_system.services.TaskService;
+import com.example.task_management_system.services.task.TaskService;
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     public void deleteTask(@PathVariable Integer id) {
-        taskService.deletTask(id);
+        taskService.deleteTask(id);
     }
 
     @PutMapping("/{taskId}/assign/{userEmail}")

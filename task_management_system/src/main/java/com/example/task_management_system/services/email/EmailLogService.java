@@ -21,7 +21,7 @@ public class EmailLogService {
 
         log.setUserId(SecurityUtil.getCurrentUserEmail());
         log.setRecipientEmail(toEmail);
-        log.setSenderEmail(toEmail);
+        log.setSenderEmail(fromEmail);
         log.setSubject(subject);
         log.setTriggeredBy(triggeredBy);
         log.setVia(via);

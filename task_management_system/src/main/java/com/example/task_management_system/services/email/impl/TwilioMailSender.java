@@ -23,7 +23,7 @@ public class TwilioMailSender implements MailSender {
     public void send(String toEmail, String subject, String message, String triggered_By) {
 
         String fromEmail = "mdarafat1819@gmail.com";
-        String senderName = "Yeasin Arafat";
+        String senderName = "Task Management System";
         Email from = new Email(fromEmail, senderName);
         Email to = new Email(toEmail);
         Content content = new Content("text/plain", message);

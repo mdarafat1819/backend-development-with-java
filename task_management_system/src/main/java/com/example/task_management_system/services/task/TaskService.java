@@ -1,4 +1,4 @@
-package com.example.task_management_system.services;
+package com.example.task_management_system.services.task;
 
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
@@ -21,14 +21,16 @@ import com.example.task_management_system.security.SecurityUtil;
 
 @Service
 public class TaskService {
-    private TaskRepository taskRepository;
-    private UserRepository userRepository;
+    private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
+    private final TaskNotificationService taskNotification;
     private final ModelMapper modelMapper;
 
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository, ModelMapper modelMapper) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, TaskNotificationService taskNotification, ModelMapper modelMapper) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.taskNotification = taskNotification;
     }
 
     public List<TaskResponse> getAllTasks() {
@@ -49,7 +51,7 @@ public class TaskService {
         return modelMapper.map(taskRepository.save(task), TaskResponse.class);
     }
 
-    public void deletTask(Integer id) {
+    public void deleteTask(Integer id) {
 
         Task task = taskRepository.findById(id).orElseThrow(
                 () -> new TaskNotFoundException(id));
@@ -67,44 +69,36 @@ public class TaskService {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
-        String currentUserEmail = SecurityUtil.getCurrentUserEmail();
-        String currentUserRole = SecurityUtil.getUserRole();
+        if(!isAuthorized(existingTask)) {
+            throw new AuthorizationDeniedException("You are not authorized to update this task.");
+        }
 
-        Task updateTask = modelMapper.map(updateTaskRequest, Task.class);
-
-        if (updateTask.getTitle() != null)
-            existingTask.setTitle(updateTask.getTitle());
-        if (updateTask.getDescription() != null)
-            existingTask.setDescription(updateTask.getDescription());
-        if (updateTask.getStatus() != null)
-            existingTask.setStatus(updateTask.getStatus());
+        if (updateTaskRequest.getTitle() != null)
+            existingTask.setTitle(updateTaskRequest.getTitle());
+        if (updateTaskRequest.getDescription() != null)
+            existingTask.setDescription(updateTaskRequest.getDescription());
+        if (updateTaskRequest.getStatus() != null)
+            existingTask.setStatus(updateTaskRequest.getStatus());
 
         existingTask.setUpdateDate(LocalDateTime.now());
         existingTask.setUpdatedBy(SecurityUtil.getCurrentUserEmail());
 
-        if (existingTask.getCreatedBy().equals(currentUserEmail) || currentUserRole.equals("ADMIN")) {
-            return modelMapper.map(taskRepository.save(existingTask), TaskResponse.class);
-        } else
-            throw new AuthorizationDeniedException("You are not authorized to update this task.");
-
+        return modelMapper.map(taskRepository.save(existingTask), TaskResponse.class);
     }
 
     public TaskResponse assignTask(Integer taskId, String assigneeEmail) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException(taskId));
-        User user = userRepository.findByEmail(assigneeEmail).orElseThrow(()-> new UserNotFoundException(assigneeEmail));
+        User assignee = userRepository.findByEmail(assigneeEmail).orElseThrow(()-> new UserNotFoundException(assigneeEmail));
 
-        task.setAssignee(user);
-        task.setUpdateDate(LocalDateTime.now());
-        task.setUpdatedBy(SecurityUtil.getCurrentUserEmail());
-
+        task.setAssignee(assignee);
         taskRepository.save(task);
+        taskNotification.sendTaskAssignedEmail(task, assignee);
 
        return modelMapper.map(task, TaskResponse.class);
     }
 
     public TaskResponse removeAssignee(Integer taskId) {
-        System.out.println("Hello from removeAssignee API");
         Task task = taskRepository.findById(taskId).orElseThrow(
             ()->new TaskNotFoundException(taskId)
         );
@@ -115,5 +109,12 @@ public class TaskService {
         taskRepository.save(task);
 
         return modelMapper.map(task, TaskResponse.class);
+    }
+
+    private boolean isAuthorized(Task task) {
+        String currentUserEmail = SecurityUtil.getCurrentUserEmail();
+        String currentUserRole = SecurityUtil.getUserRole();
+
+        return task.getCreatedBy().equals(currentUserEmail) || currentUserRole.equals("ADMIN");
     }
 }

@@ -39,7 +39,7 @@ public class EmailOtpService {
         String message = "Dear User,\nYour OTP is: " + emailOtp.getOtp() +
                 "\nThis OTP will expire in 5 minutes." + "\nDo not share this OTP with anyone.";
 
-        MailSender mailSender = mailSenderFactory.getMailSender("SMTP");
+        MailSender mailSender = mailSenderFactory.getMailSender("TWILIO-SENDGRID");
         mailSender.send(email, subject, message, apiPath);
     }
 
