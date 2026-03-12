@@ -1,12 +1,15 @@
 package com.example.task_management_system.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.task_management_system.dto.TaskRequest;
 import com.example.task_management_system.dto.TaskResponse;
+import com.example.task_management_system.enums.Status;
 import com.example.task_management_system.services.task.TaskService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,16 @@ public class TaskController {
     @GetMapping
     public List<TaskResponse> getTasks() {
         return taskService.getAllTasks();
+    }
+    @GetMapping("/search")
+    public List<TaskResponse> searchTask(
+        @RequestParam(required = false) String createdBy,
+        @RequestParam(required = false) Status status,
+        @RequestParam(required = false) String assignee,
+        @RequestParam(required = false) LocalDateTime createdBefore,
+        @RequestParam(required = false) LocalDateTime createdAfter
+    ) {
+        return taskService.searchTasks(createdBy, status, assignee, createdBefore, createdAfter);
     }
 
     @GetMapping("/{id}") 

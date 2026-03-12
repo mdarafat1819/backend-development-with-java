@@ -1,6 +1,7 @@
 package com.example.task_management_system.services.task;
 
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -12,6 +13,7 @@ import com.example.task_management_system.dto.TaskRequest;
 import com.example.task_management_system.dto.TaskResponse;
 import com.example.task_management_system.entities.Task;
 import com.example.task_management_system.entities.User;
+import com.example.task_management_system.enums.Status;
 import com.example.task_management_system.exceptions.TaskNotFoundException;
 import com.example.task_management_system.exceptions.UserNotFoundException;
 import com.example.task_management_system.repositories.TaskRepository;
@@ -37,6 +39,19 @@ public class TaskService {
         List<Task> tasks = taskRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
         Type listType = new TypeToken<List<TaskResponse>>() {
         }.getType();
+
+        return modelMapper.map(tasks, listType);
+    }
+
+    public List<TaskResponse>searchTasks(String createdBy, Status status, String assignee, LocalDateTime createdBefore, LocalDateTime createdAfter) {
+        List<Task> tasks = taskRepository.searchTasks(
+        createdBy,
+        status,
+        assignee,
+        createdBefore,
+        createdAfter
+);
+        Type listType = new TypeToken<List<TaskResponse>>(){}.getType();
 
         return modelMapper.map(tasks, listType);
     }
