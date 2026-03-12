@@ -19,22 +19,40 @@ public class TaskNotificationService {
         this.mailSenderFactory = mailSenderFactory;
     }
 
-    public void sendTaskAssignedEmail(Task task, User assignee) {
-        MailSender mailSender = mailSenderFactory.getMailSender("SMTP");
+    public void notifyTaskAssigned(Task task, User assignee) {
+        MailSender mailSender = mailSenderFactory.getMailSender("TWILIO-SENDGRID");
        
-        String message = buildTaskAssignedEmail(task, assignee, taskUrl);
+        String message = buildTaskAssignedNotification(task, assignee, taskUrl);
         String subject = "[Task-"+task.getId()+"] : Assigned to You";
 
         mailSender.send(assignee.getEmail(),subject, message, "TASK_ASSIGNED_NOTIFICATION_SERVICE");
     }
 
-     private String buildTaskAssignedEmail(Task task, User assigne, String link) {
+     private String buildTaskAssignedNotification(Task task, User assignee, String link) {
     return """
         Dear %s,
         You have been assigned a new task.
         Task: %s,
         Task ID: %s
         View Work Item : %s
-        """.formatted(assigne.getFirstName(), task.getTitle(), task.getId(), link + task.getId());
+        """.formatted(assignee.getFirstName(), task.getTitle(), task.getId(), link + task.getId());
 }
+
+    public void notifyAssigneeRemoved(Task task, User assignee) {
+        MailSender mailSender = mailSenderFactory.getMailSender("SMTP");
+        String subject = "Task Assignment Removed";
+        String messageBody = buildAssigneeRemovedNotification(task, assignee, taskUrl);
+        mailSender.send(assignee.getEmail(), subject, messageBody, "TASK_REMOVED_NOTIFICAITON_SERVICE");
+    }
+    private String buildAssigneeRemovedNotification(Task task, User assignee, String link) {
+        return """
+        Dear %s,
+        You have been removed as the assignee for the following task:
+        Task: %s,
+        Task ID: %s
+        View Work Item : %s
+        Regards,
+        Task Management System
+        """.formatted(assignee.getFirstName(), task.getTitle(), task.getId(), link + task.getId());
+    }
 }
