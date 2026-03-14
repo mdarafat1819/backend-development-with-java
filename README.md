@@ -1636,6 +1636,87 @@ Think of JWT as a digitally signed message. It consists of three parts: a header
         - The result is base64url encoded to produce the encoded signature.
     
     - **Final Token:** The token is the concatenation of the encoded header, payload, and signature, separated by periods (.).
+
+## Production Ready Features
+### 1️⃣ Logging
+Logging is the process of recording events, errors, and informational messages from an application. It helps developers and system administrators track the application's behavior and troubleshoot issues.
+
+Many programming languages have libraries and frameworks (like Log4j, SLF4J, or Python’s logging module) that simplify the logging process and offer advanced features like formatting and log rotation.
+
+**Elements of Logging Framework:**  
+Every logging framework comes with three elements.
+1. **Logger** — capture the messages
+2. **Formatter** — formats the messages captured by the logger
+3. **Handler** — Dispatches the messages by printing them on the console , or storing them in a file , sending an email, etc.  
+
+**Log Levels**  
+The messages logged can be of various security levels . Spring Boot supports five log levels which are
+1. FATAL – fatal error crashing the system
+2. ERROR — runtime errors
+3. WARN — warning
+3. INFO — events occurring at the run time
+4. DEBUG — Information about the flow of the system
+5. TRACE — more detailed information about the flow of the system  
+Each level serves a specific purpose, helping developers prioritize and filter log messages based on their severity or importance.
+<details>
+<summary>Example: Logging using SLF4J</summary>
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+@Service
+public class EmployeeClient {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(EmployeeClient.class);
+
+    public EmployeeDto createNewEmployee(EmployeeDto input) {
+
+        logger.trace("TRACE log");
+        logger.debug("DEBUG log");
+        logger.info("Creating new employee");
+        logger.warn("Sample warning log");
+        logger.error("Sample error log");
+
+        try {
+            // business logic
+        } catch (Exception e) {
+            logger.error("Error while creating employee", e);
+        }
+
+        return null;
+    }
+}
+```
+</details>
+
+</br>
+
+**Log Formatters**  
+Customize console log output in `application.properties`.
+```bash
+#properties:
+logging.pattern.console=%d [%level] %c{2.} [%t] %m%n
+```
+| Pattern  | Meaning     |
+| -------- | ----------- |
+| `%d`     | Date & time |
+| `%level` | Log level   |
+| `%c`     | Class name  |
+| `%t`     | Thread name |
+| `%m`     | Log message |
+| `%n`     | New line    |
+
+**Log File Configuration**  
+```bash
+# Save logs into a file.
+logging.file.name=error.log # Spring Boot will automatically create the log file.
+# File Log Pattern
+logging.pattern.file=%d{yyyy-MM-dd HH:mm:ss.SSS} [%level] %c{2.} [%t] %m%n
+```
+
 ## Random Terminology
 ### Stateful vs. Stateless Architecture
 **Stateful** architecture maintains client session data on servers, while **stateless** architecture treats each request independently.

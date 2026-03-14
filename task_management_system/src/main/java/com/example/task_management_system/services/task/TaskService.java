@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class TaskService {
     private final UserRepository userRepository;
     private final TaskNotificationService taskNotification;
     private final ModelMapper modelMapper;
+    Logger logger = LoggerFactory.getLogger(TaskService.class);
 
     public TaskService(TaskRepository taskRepository, UserRepository userRepository,
             TaskNotificationService taskNotification, ModelMapper modelMapper) {
@@ -40,6 +43,7 @@ public class TaskService {
         Type listType = new TypeToken<List<TaskResponse>>() {
         }.getType();
 
+        logger.info("Log: getAllTask");
         return modelMapper.map(tasks, listType);
     }
 
