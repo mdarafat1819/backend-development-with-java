@@ -1636,7 +1636,6 @@ Think of JWT as a digitally signed message. It consists of three parts: a header
         - The result is base64url encoded to produce the encoded signature.
     
     - **Final Token:** The token is the concatenation of the encoded header, payload, and signature, separated by periods (.).
-
 ## Production Ready Features
 ### 1️⃣ Logging
 Logging is the process of recording events, errors, and informational messages from an application. It helps developers and system administrators track the application's behavior and troubleshoot issues.
@@ -1716,6 +1715,44 @@ logging.file.name=error.log # Spring Boot will automatically create the log file
 # File Log Pattern
 logging.pattern.file=%d{yyyy-MM-dd HH:mm:ss.SSS} [%level] %c{2.} [%t] %m%n
 ```
+### 2️⃣ Third-party API Integration
+`RestTemplate`, `WebClient`, and `RestClient` are powerful HTTP clients in Java used for more than just third-party API calls.
+1. `RestTemplate`: Still in use for legacy systems, but it’s deprecated and should be avoided for new development.
+2. `WebClient`: The preferred choice for modern Spring applications, especially those utilizing reactive programming and requiring asynchronous processing.
+3. `RestClient`: A newer, synchronous client that offers a modern API, expected to replace RestTemplate for developers who need blocking calls but want a more updated and flexible tool.
+
+**Rest Template Library**  
+`RestTemplate` is a powerful synchronous client for handling HTTP communication in Spring Boot applications. It internally uses an HTTP client library i.e. java.net.HttpURLConnection, simplifying the process of making RESTful requests to external services and APIs, including convenience, along with integration, and flexibility for various HTTP communication.  
+All the packages/libraries for RestTemplate are present in **spring-boot-starter-web**.
+```java
+// Bean Configuration for RestTemplate
+@Bean 
+public RestTemplate restTemplate(){
+    return new RestTemplate();
+}
+// Example: Weather API Client
+@Service
+@RequiredArgsConstructor
+public class WeatherClient {
+
+    private final RestTemplate restTemplate;
+    private final String apiKey = System.getenv("OPEN_WEATHER_API_KEY");
+
+    public WeatherResponse getWeather(String city) {
+        String url = "https://api.openweathermap.org/data/2.5/weather?q="
+                     + city + "&appid=" + apiKey + "&units=metric";
+        return restTemplate.getForObject(url, WeatherResponse.class);
+    }
+}
+```
+| Operation | RestTemplate Method             | Description                              |
+| --------- | ------------------------------- | ---------------------------------------- |
+| Create    | `postForObject`                 | Send POST request, receive response body |
+| Read      | `getForObject` / `getForEntity` | Fetch resource by URL                    |
+| Update    | `put` / `exchange`              | Send PUT request to update resource      |
+| Delete    | `delete` / `exchange`           | Send DELETE request                      |
+
+
 
 ## Random Terminology
 ### Stateful vs. Stateless Architecture
