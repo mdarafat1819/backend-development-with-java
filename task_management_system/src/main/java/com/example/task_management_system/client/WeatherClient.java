@@ -28,6 +28,7 @@ public class WeatherClient {
                 + "&units=metric";
         try {
             weatherResponse = restTemplate.getForObject(url, WeatherResponse.class);
+            logger.info("Log: "+ weatherResponse.getName());
         }
         catch(Exception ex) {
             logger.error(ex.getMessage());
