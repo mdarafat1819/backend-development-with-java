@@ -1769,6 +1769,50 @@ logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} %clr(%-5level) %clr(%c{2.}){cyan
 2. **SendGrid Integration**  
 SendGrid provides an official Java SDK. Instead of manually building HTTP requests, you use their prebuilt library.  
 See the the details Documentation: https://www.twilio.com/en-us/products/email-api
+
+
+### 4️⃣ Database Migrations
+All applications that get deployed to production should use an automated approach to migrate their database.  It also ensures you don’t miss any changes during the update process. That’s, of course, also true if you develop your application based on Spring Boot.
+
+**Flyway** and **Liquibase** are two of the most popular Java libraries for version-based database migration. The general idea of this approach is to use a similar versioning and migration tactic as you did for your application code. For each version, you provide the required steps to migrate your database from the previous to the new version. Using Flyway or Liquibase, you can then automatically apply the required migration steps to update your database from any version to the current version.  
+
+**Using Liquibase and Spring Boot**  
+To integrate Liquibase with Spring Boot, you only need to add the required dependency. **Spring Boot will automatically execute the migration scripts during application startup.**
+```java
+// Add Dependency
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-liquibase</artifactId>
+</dependency>
+// Project Folder Structure
+src/main/resources  
+└───db  
+    └───changelog  
+        │   db.changelog-master.xml  
+        └───changes  
+                V1__file_name.sql  
+                V2__file_name.sql  
+// Configure db.changelog-master.xml
+// Each changeSet represents a single database migration step.
+<changeSet id="1" author="yeasin">
+        <sqlFile path="db/changelog/changes/V1__file_name.sql"/>
+</changeSet>
+<changeSet id="2" author="yeasin">
+        <sqlFile path="db/changelog/changes/V2__file_name.sql"/>
+</changeSet>
+// Configure application.properties
+spring.liquibase.enabled: true
+spring.liquibase.change-log: classpath:db/changelog/db.changelog-master.xml
+spring.liquibase.contexts=dev
+spring.liquibase.default-schema=public
+```
+**Note:** Liquibase supports multiple file formats for defining migrations:  
+- XML
+- YAML
+- JSON
+- SQL
+
+This flexibility allows developers to choose the format that best fits their project.
 ## Random Terminology
 ### Stateful vs. Stateless Architecture
 **Stateful** architecture maintains client session data on servers, while **stateless** architecture treats each request independently.
