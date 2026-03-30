@@ -1622,7 +1622,7 @@ Core Spring Security components are used throughout a Spring Boot application to
         - SCryptPasswordEncoder
 
 ### 3️⃣ Understanding JWT
-JWT stands for JSON Web Token. A JSON Web Token is a digitally signed token used to securely transmit information between parties in a compact format. It’s like a digital passport that allows users to access different parts of a web application without having to repeatedly log in. The token itself contains all the necessary information, and its signature ensures that the data has not been tampered with. This makes JWT a powerful tool for enabling stateless authentication, where the server doesn’t need to remember who you are, but can still trust the information you provide each time you interact with it.
+A JSON Web Token(JWT) is a digitally signed token used to securely transmit information between parties in a compact format. It’s like a digital passport that allows users to access different parts of a web application **without having to repeatedly log in.** The token itself contains all the necessary information, and its signature ensures that the data has not been tampered with. This makes JWT a powerful tool for enabling stateless authentication, where the server doesn’t need to remember who you are, but can still trust the information you provide each time you interact with it.
 
 1. **JWT Creation**  
 Think of JWT as a digitally signed message. It consists of three parts: a header, payload(which contains the data), and a signature (which ensures that the message hasn’t been tampered with)
@@ -1634,8 +1634,7 @@ Think of JWT as a digitally signed message. It consists of three parts: a header
         - The encoded header and payload are concatenated with a period (`.`) in between.
         - This concatenated string is hashed using the HMAC-SHA256 algorithm, along with the secret key.
         - The result is base64url encoded to produce the encoded signature.
-    
-    - **Final Token:** The token is the concatenation of the encoded header, payload, and signature, separated by periods (.).
+    - **Final Token:** The token is the concatenation of the encoded header, payload, and signature, separated by periods (`.`).
 ## Production Ready Features
 ### 1️⃣ Spring boot Dev tools
 Spring Boot DevTools is a development toolset designed to enhance the productivity of developers by providing features like automatic restart, live reload, and property overrides. It simplifies the process of testing and tweaking applications during development by automatically applying changes without requiring a manual restart.
@@ -1825,3 +1824,7 @@ This flexibility allows developers to choose the format that best fits their pro
 ### 2. Task Management System - [Spring Boot Application](/task_management_system/) 
 - Spring Boot application with CRUD operations, authentication, authorization, and JWT-based security for multi-user access.
 - It supports multi-user access using JWT-based security and follows clean, scalable backend design practices.
+
+## References
+1. [Spring Boot Handbook](https://www.codingshuttle.com/spring-boot-handbook/configuring-security-filter-chain/)
+2. [Builder Method Design Pattern In Java](https://www.geeksforgeeks.org/java/builder-pattern-in-java/)
