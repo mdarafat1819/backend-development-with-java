@@ -1571,22 +1571,39 @@ Use `@Transactional` at the **service** layer where business logic and database 
 By default, `@Transactional` rolls back on RuntimeExceptions or unchecked exceptions.
 Transactions ensure data consistency and integrity, making them crucial in systems that handle financial operations, order processing, and more.
 
+
 ## Spring Security
 Spring Security is a robust framework that enhances Java EE applications by adding essential security features. It acts as a collection of filters that manage authentication, authorization, and protection. This library ensures that applications are secure, user identities are verified, access is properly controlled, and vulnerabilities are mitigated effectively.
 
-`Authentications:` To verify the identity of users.  
-`Authorizations:` To control the access to resources based on permissions.  
-`Protections:` To protect applications from frequent and well-known security threats.  
+1. `Authentications:` To verify the identity of users.  
+2. `Authorizations:` To control the access to resources based on permissions.  
+3. `Protections:` To protect applications from frequent and well-known security threats.  
 
-To enable Spring Security support, we need to add the `spring-boot-starter-security` dependency in our Spring MVC application.
+```xml
+<!-- Maven Dependency to enable Spring Security. -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+```
+If you run your application after adding the `spring-boot-starter-security` dependency, you will see in the console that the application generates a default password, and the default username is `user`.
+
+```bash
+## In Console
+Using generated security password: ca6c4ff8-285c-45b7-86e8-72ec4ac75cc8
+```
+
+If you have a controller with a `GET` endpoint (http://localhost:8080/hello), try sending a request from Browser. You will see a generated sign-in form. If you enter `user` as the username and the password, then click the `Sign In` button to get API results.  
+**Note:** You can log out by accessing http://localhost:8080/logout
+
+Instead of using the default username and password, you can also create your username and password in your `application.properties`.
+```xml
+spring.security.user.name=<name>
+spring.security.user.password=<password>
+```
 
 ### 1️⃣ Internal Working of Spring Security
-In a Spring Boot application, `SecurityFilterAutoConfiguration` automatically registers the `DelegatingFilterProxy` filter with the name springSecurityFilterChain. Once the request reaches to DelegatingFilterProxy, Spring delegates the processing to `FilterChainProxy` bean that utilizes the `SecurityFilterChain` to execute the list of all filters to be invoked for the current request.
-
-- `SecurityFilterAutoConfiguration`: Automatically registers the `DelegatingFilterProxy` filter under the name springSecurityFilterChain.  
-- `DelegatingFilterProxy`: This filter intercepts incoming HTTP requests and delegates their processing to the `FilterChainProxy`.
-- `FilterChainProxy`: The `FilterChainProxy` bean manages a list of security filters defined in the `SecurityFilterChain`. It determines which filters should be applied to the current request.
-- `SecurityFilterChain`: This component contains the filters that will be executed in sequence for the request, handling various security aspects like authentication, authorization, etc.
+In a Spring Boot application, `SecurityFilterAutoConfiguration` automatically registers the `DelegatingFilterProxy` filter as `SecurityFilterChain`. Once the request reaches to `DelegatingFilterProxy`, Spring delegates the processing to `FilterChainProxy` bean that utilizes the `SecurityFilterChain` to execute the list of all filters to be invoked for the current request.
 
 **Imagine if This Situation:**  
 Your Spring Boot application is like a mall. The mall has various sections, like stores, a food court, and a VIP lounge. Some areas are open to everyone, while others (like the VIP lounge) require special access.
@@ -1599,27 +1616,119 @@ Your Spring Boot application is like a mall. The mall has various sections, like
 ### 2️⃣ Core Spring Security Components
 Core Spring Security components are used throughout a Spring Boot application to manage authentication, authorization, and overall security. Here’s where and how these components are typically used:
 
-1. UserDetails Interface:  
-    - The **UserDetails** interface represents a user in the Spring Security framework. It provides methods to get user information such as username, password, and authorities.
-    - **Purpose:** To encapsulate user information, including authentication and authorization details.
-    - **Implementation:** You can use it to extend your User Entity.
+1. `UserDetails` Interface:  
+    - The `UserDetails` interface represents a **user** in the Spring Security framework. It provides methods to get user information such as username, password, and authorities.
+    - **Implementation:** You can use it to extend your `User` Entity.
  
-2. UserDetailsService Interface:  
-    - The **UserDetailsService** interface is a core component in Spring Security that is used to retrieve user-related data. It has a single method: *loadUserByUsername()*.
-    - **Purpose:** To fetch user details from a datasource (e.g., database) based on the username.
+2. `UserDetailsService` Interface:  
+    - The `UserDetailsService` interface is a core component in Spring Security that is used to retrieve user-related data from a datasource (e.g., database). It has a single method: *`loadUserByUsername()`*.
     - **Implementation:** You typically implement this interface to load user details, such as username, password, and roles, from your own user repository.
+3. `AuthenticationManager` Interface:  
+ The `AuthenticationManager` uses one or more `AuthenticationProvider`s to authenticate the request. Different `AuthenticationProvider`s are used depending on the type of authentication required (e.g., `InMemoryAuthenticationProvider`, `DaoAuthenticationProvider`, `OAuth2AuthenticationProvider`, etc.).  
  
-3. InMemoryUserDetailsManager Interface:
-    - The **InMemoryUserDetailsManager** is a Spring Security provided implementation of **UserDetailsService** that stores user information in memory.
-    - **Purpose:**To store user details in memory, typically for testing or small applications. You define users directly in the configuration.
- 
-4. PasswordEncoder Interface: 
-    - The **PasswordEncoder** interface is used for encoding and validating passwords. It has methods for encoding raw passwords and matching encoded passwords.
-    - **Purpose:** To securely hash passwords before storing them and to verify hashed passwords during authentication.
+ 4. `PasswordEncoder` Interface: 
+    - The `PasswordEncoder` interface is used for encoding and validating passwords. It has methods for encoding raw passwords and matching encoded passwords.
     - Common Implementations: 
         - BCryptPasswordEncoder 
         - Pbkdf2PasswordEncoder 
         - SCryptPasswordEncoder
+
+### 3️⃣ Authentication Flow
+1. Filter Chain intercepts incoming request before forwarding it to the `DispatcherServlet`.
+2. Request goes to the authentication filters (one such filter is `UsernamePasswordAuthenticationFilter`).
+3. The filter extracts the username and password from the request (`HttpServletRequest` object).
+4. Next, a `UsernamePasswordAuthenticationToken` is created with the credentials.
+5. The `AuthenticationManager` authenticate() method is invoked.
+6. The `AuthenticationManager` authenticate() method implementation will then try to authenticate using one of the `AuthenticationProvider` it has.
+7. If one of the authentication providers is able to authenticate successfully, it returns a complete `UsernamePasswordAuthenticationToken` holding the credentials and authorities.
+8. This token which is returned from the provider is used to set the user as authenticated in the Spring Security Context.
+9. Once, the user is authenticated, the request is then forwarded to the `DispatcherServlet` which handles the request.
+
+### 4️⃣ Authentication Using Several Providers
+        
+1. `InMemoryUserDetailsManager` Provider:  
+The `InMemoryUserDetailsManager` is a Spring Security provided implementation of `UserDetailsService` that stores user information in memory. You define users directly in the configuration.
+
+    ```Java
+    @Configuration
+    @EnableWebSecurity
+    public class SecurityConfig {
+        @Bean
+        public UserDetailsService userDetailsService() {
+            UserDetails user = User.withUsername("user")
+                    .password(passwordEncoder().encode("8341"))
+                    .roles("ADMIN")
+                    .build();
+
+            return new InMemoryUserDetailsManager(user);
+        }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
+    }
+    ```
+2. `DaoAuthenticationProvider` Provider:  
+The default `AuthenticationProvider` in Spring Security is the `DaoAuthenticationProvider`. This provider uses a `UserDetailsService` to load the user's details from a database.  
+If the user's credentials match the details in the database, the `DaoAuthenticationProvider` will return an authenticated Authentication object.  
+**Note:** You have to store the password in the database in BCrypt hash format. In my case, the username is `user`, and the password is `$2a$12$LRFXOQ6w0VK9HInMXRbGJOzMgvzmAMzUlRvWr4CHQKsTVyr0DSm2y` (plain text: 1234).  
+To log in, use the username `user` and password `1234`.
+
+    ```java
+    //SecurityConfig.java
+    @Configuration
+    @EnableWebSecurity
+    public class SecurityConfig {
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
+    }
+
+    //UserRepo.java
+    @Repository
+    public interface UserRepo extends JpaRepository<User, String> {    
+        User findByUsername(String username);
+    } 
+
+    //User.java
+    @Entity
+    @Table(name="users")
+    public class User implements UserDetails {
+        @Id 
+        private String username;
+        private String password;
+        private String role;
+
+        @Override
+        public String getUsername() {
+            return username;
+        }
+        @Override
+        public String getPassword() {
+            return password;
+        }
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return List.of(()->role); 
+        }
+    }
+    //CustomUserDetailsService.java
+    @Service
+    public class CustomUserDetailsService implements UserDetailsService {
+        private final UserRepo userRepo;
+
+        public CustomUserDetailsService(UserRepo userRepo) {
+            this.userRepo = userRepo;
+        }
+
+        @Override
+        public UserDetails loadUserByUsername(String username) {
+            User user = userRepo.findByUsername(username);
+            return user;
+        }
+    }
+    ```
 
 ### 3️⃣ Understanding JWT
 A JSON Web Token(JWT) is a digitally signed token used to securely transmit information between parties in a compact format. It’s like a digital passport that allows users to access different parts of a web application **without having to repeatedly log in.** The token itself contains all the necessary information, and its signature ensures that the data has not been tampered with. This makes JWT a powerful tool for enabling stateless authentication, where the server doesn’t need to remember who you are, but can still trust the information you provide each time you interact with it.
@@ -1828,3 +1937,4 @@ This flexibility allows developers to choose the format that best fits their pro
 ## References
 1. [Spring Boot Handbook](https://www.codingshuttle.com/spring-boot-handbook/configuring-security-filter-chain/)
 2. [Builder Method Design Pattern In Java](https://www.geeksforgeeks.org/java/builder-pattern-in-java/)
+3. [Understanding Spring Security Authentication Flow](https://medium.com/@aprayush20/understanding-spring-security-authentication-flow-f9bb545bd77)
