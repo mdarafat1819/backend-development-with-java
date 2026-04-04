@@ -1733,7 +1733,31 @@ To log in, use the username `user` and password `1234`.
 ### 3️⃣ Understanding JWT
 A JSON Web Token(JWT) is a digitally signed token used to securely transmit information between parties in a compact format. It’s like a digital passport that allows users to access different parts of a web application **without having to repeatedly log in.** The token itself contains all the necessary information, and its signature ensures that the data has not been tampered with. This makes JWT a powerful tool for enabling stateless authentication, where the server doesn’t need to remember who you are, but can still trust the information you provide each time you interact with it.
 
-1. **JWT Creation**  
+```xml
+<!-- JWT Library Dependencies -->
+<!-- jjwt-api: The core library providing interfaces for JWT operations. -->
+<!-- jjwt-impl: Contains the implementation logic for the API (needed at runtime). -->
+<!-- jjwt-jackson: Adds support for JSON parsing and serialization using the Jackson library (needed at runtime). -->
+ <dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.12.6</version>
+</dependency>
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-impl</artifactId>
+    <version>0.12.6</version>
+    <scope>runtime</scope>
+</dependency>
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-jackson</artifactId> 
+    <version>0.12.6</version>
+    <scope>runtime</scope>
+</dependency>
+```
+
+1. **JWT Creation & Verification**  
 Think of JWT as a digitally signed message. It consists of three parts: a header, payload(which contains the data), and a signature (which ensures that the message hasn’t been tampered with)
     - **Sample Token:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9`.`eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ`.`SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`
     - **JWT Header:**  Contains metadata about the token, such as the signing algorithm (`HS256`) and token type (`JWT`).
@@ -1743,7 +1767,61 @@ Think of JWT as a digitally signed message. It consists of three parts: a header
         - The encoded header and payload are concatenated with a period (`.`) in between.
         - This concatenated string is hashed using the HMAC-SHA256 algorithm, along with the secret key.
         - The result is base64url encoded to produce the encoded signature.
-    - **Final Token:** The token is the concatenation of the encoded header, payload, and signature, separated by periods (`.`).
+    - **Final Token:** The token is the concatenation of the encoded header, payload, and signature, separated by periods (`.`).  
+    - **Verification:** Upon receiving requests, the server verifies the JWT's signature using the same secret key (or a public key in RS256) to ensure the data has not been tampered with.
+
+    ```java
+    //JWTService.java
+    @Service
+    public class JWTService {
+        private final String jwtSecreteKey = "ddgdbydjsmsjjsmhdgdndjsksjbdddjdkddk";
+
+        private SecretKey generateSecretKey() {
+            return Keys.hmacShaKeyFor(jwtSecreteKey.getBytes(StandardCharsets.UTF_8));
+        }
+
+        public String generateToken(String username) {
+            return Jwts.builder()
+                    .subject(username)
+                    .issuedAt(new Date(System.currentTimeMillis()))
+                    .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
+                    .signWith(generateSecretKey())
+                    .compact();
+        }
+
+        public boolean validateToken(String token, String username) {
+            final String extractedUsername = extractAllClaims(token).getSubject();
+            final boolean isTokenExpired = extractAllClaims(token).getExpiration().before(new Date());
+
+            return (extractedUsername.equals(username) && !isTokenExpired);
+        }
+
+        private Claims extractAllClaims(String token) {
+            return Jwts.parser()
+                .verifyWith(generateSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        }
+    }
+    // JWTController.java
+    @RestController
+    public class JWTController {
+        private final JWTService jwtService;
+        public JWTController(JWTService jwtService) {
+            this.jwtService = jwtService;
+        }
+        @GetMapping("/generate-jwt")
+        public String generateJwt() {
+            return jwtService.generateToken("user");
+        }
+        @GetMapping("/validate-jwt")
+        public String validate(@RequestParam String token) {
+            boolean isValid = jwtService.validateToken(token, "user1");
+            return isValid ? "Valid Token" : "Invalid Token";
+        }
+    }
+    ```
 ## Production Ready Features
 ### 1️⃣ Spring boot Dev tools
 Spring Boot DevTools is a development toolset designed to enhance the productivity of developers by providing features like automatic restart, live reload, and property overrides. It simplifies the process of testing and tweaking applications during development by automatically applying changes without requiring a manual restart.
