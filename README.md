@@ -1729,7 +1729,30 @@ To log in, use the username `user` and password `1234`.
         }
     }
     ```
+3. **Basic Auth**  
+In Basic Auth, the client sends the username and password in every request. To activate Basic Auth for a RESTful API, we have to override the security configuration:
 
+    ```java
+    @Configuration
+    @EnableWebSecurity
+    public class SecurityConfig {
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                .anyRequest().authenticated())
+                .formLogin(form -> form.disable())
+                .httpBasic(Customizer.withDefaults());
+
+            return http.build();
+        }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+         }
+    }
+    ```
 ### 3️⃣ Understanding JWT
 A JSON Web Token(JWT) is a digitally signed token used to securely transmit information between parties in a compact format. It’s like a digital passport that allows users to access different parts of a web application **without having to repeatedly log in.** The token itself contains all the necessary information, and its signature ensures that the data has not been tampered with. This makes JWT a powerful tool for enabling stateless authentication, where the server doesn’t need to remember who you are, but can still trust the information you provide each time you interact with it.
 
