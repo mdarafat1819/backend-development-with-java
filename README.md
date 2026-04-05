@@ -1571,7 +1571,6 @@ Use `@Transactional` at the **service** layer where business logic and database 
 By default, `@Transactional` rolls back on RuntimeExceptions or unchecked exceptions.
 Transactions ensure data consistency and integrity, making them crucial in systems that handle financial operations, order processing, and more.
 
-
 ## Spring Security
 Spring Security is a robust framework that enhances Java EE applications by adding essential security features. It acts as a collection of filters that manage authentication, authorization, and protection. This library ensures that applications are secure, user identities are verified, access is properly controlled, and vulnerabilities are mitigated effectively.
 
@@ -1710,7 +1709,7 @@ To log in, use the username `user` and password `1234`.
         }
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
-            return List.of(()->role); 
+            return List.of(()->"ROLE_"+role); 
         }
     }
     //CustomUserDetailsService.java
@@ -1753,6 +1752,7 @@ In Basic Auth, the client sends the username and password in every request. To a
          }
     }
     ```
+
 ### 3️⃣ Understanding JWT
 A JSON Web Token(JWT) is a digitally signed token used to securely transmit information between parties in a compact format. It’s like a digital passport that allows users to access different parts of a web application **without having to repeatedly log in.** The token itself contains all the necessary information, and its signature ensures that the data has not been tampered with. This makes JWT a powerful tool for enabling stateless authentication, where the server doesn’t need to remember who you are, but can still trust the information you provide each time you interact with it.
 
@@ -1844,6 +1844,123 @@ Think of JWT as a digitally signed message. It consists of three parts: a header
             return isValid ? "Valid Token" : "Invalid Token";
         }
     }
+    ```
+2. **Login using JWT**  
+When a user logs in, the server generates a JWT that contains user-specific information, such as a unique identifier and roles. This token is then sent to the client, which stores it for future requests. By including the JWT in the Authorization header of these requests, clients can authenticate themselves and access protected resources without repeatedly transmitting sensitive credentials.  
+**Implementation Steps**  
+    - The user sends a `POST` request with their credentials to the `/authenticate`(e.g http://localhost:8080/auth/login) endpoint.
+    - If valid, a JWT is generated and returned to the client.
+    - The client includes the JWT in the Authorization header (as Bearer token).
+    - The `JWTRequestFilter` intercepts the request, validates the token, and sets the authentication object in the `SecurityContextHolder` if the token is valid.
+    - The request proceeds to the controller, which can now access the authenticated user's details via the `SecurityContextHolder`.
+
+    ```java
+    //Auth.java
+    @RestController
+    @RequestMapping("/auth")
+    public class Auth {
+        private final AuthService authService;
+
+        public Auth(AuthService authService) {
+            this.authService = authService;
+        }
+
+        @PostMapping("/login")
+        public String login(@RequestBody LoginRequest loginRequest) {
+            return authService.login(loginRequest);
+        }
+    }
+    //AuthService.java
+    @Service
+    public class AuthService {
+        private final AuthenticationManager authenticationManager;
+        private final JWTService jwtService;
+
+        public AuthService(AuthenticationManager authenticationManager, JWTService jwtService) {
+            this.authenticationManager = authenticationManager;
+            this.jwtService = jwtService;
+        }
+
+        public String login(LoginRequest loginRequest) {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+            return jwtService.generateToken(loginRequest.getUsername());
+        }
+    }
+    //SecurityConfig.java
+    @Configuration
+    @EnableWebSecurity
+    public class SecurityConfig {
+        private final JWTRequestFilter jwtRequestFilter;
+
+        public SecurityConfig(JWTRequestFilter jwtRequestFilter) {
+            this.jwtRequestFilter = jwtRequestFilter;
+        }
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            http
+                    .csrf(csrf -> csrf.disable())
+                    .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/auth/login").permitAll()
+                    .anyRequest().authenticated())
+                    .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
+            return http.build();
+        }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
+        @Bean
+        AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+            return authenticationConfiguration.getAuthenticationManager();
+        }
+    }
+    //JWTRequestFilter.java
+    @Component
+    public class JWTRequestFilter extends OncePerRequestFilter {
+        private final JWTService jwtService;
+        private final CustomUserDetailsService userDetailsService;
+
+        public JWTRequestFilter(JWTService jwtService, CustomUserDetailsService userDetailsService) {
+            this.jwtService = jwtService;
+            this.userDetailsService = userDetailsService;
+        }
+
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
+            final String requestTokenHeader = request.getHeader("Authorization");
+
+            if(requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String token = requestTokenHeader.substring(7);
+            String username = jwtService.getUsername(token);
+
+            if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                if(jwtService.validateToken(token, username)) {
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+            }
+
+            filterChain.doFilter(request, response);
+        }
+    }
+    //LoginRequest.java
+    public class LoginRequest {
+        private String username;
+        private String password;
+    }
+    // JWTService.java is the same as the previous example
+    // User.java is the same as the previous example
+    // UserRepo.java is the same as the previous example
+    // CustomeUserDetailsService.java is the same as the previous example
     ```
 ## Production Ready Features
 ### 1️⃣ Spring boot Dev tools
