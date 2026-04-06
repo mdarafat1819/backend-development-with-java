@@ -1960,8 +1960,158 @@ When a user logs in, the server generates a JWT that contains user-specific info
     // JWTService.java is the same as the previous example
     // User.java is the same as the previous example
     // UserRepo.java is the same as the previous example
-    // CustomeUserDetailsService.java is the same as the previous example
+    // CustomUserDetailsService.java is the same as the previous example
     ```
+3. **Login using an access token and a refresh token**  
+
+    | Token             | Lifetime         | Purpose              |
+    | ----------------- | ---------------- | -------------------- |
+    | **Access Token**  | Short (5–15 min) | Call APIs            |
+    | **Refresh Token** | Long (7–30 days) | Get new access token |
+
+    **Access Token:** This is like a single-ride ticket. It's valid for a short period (for one ride), and once you use it, you need a new one. If it gets lost or stolen, it only affects that one ride—it's not a big risk.
+
+    **Refresh Token:** This is like an all-day pass. Even though your single-ride ticket expires after each use, you can always go back to the ticket counter and get a new one using your all-day pass. The all-day pass is securely stored, and you only need to use it when you want a new ride ticket.
+
+    Access tokens are short-lived, limiting the damage if compromised since they expire quickly. Refresh tokens are long-lived and only used to obtain new access tokens, reducing the exposure of long-term credentials and allowing them to be stored more securely, such as in **HTTP-only cookies**. Additionally, even if the access token expires, the refresh token can be used to maintain session continuity without disrupting the user.
+
+    ```java
+    // JWTService.java
+    @Service
+    public class JWTService {
+        private final String jwtSecreteKey = "ddgdbydjsmsjjsmhdgdndjsksjbdddjdkddk";
+
+        private SecretKey generateSecretKey() {
+            return Keys.hmacShaKeyFor(jwtSecreteKey.getBytes(StandardCharsets.UTF_8));
+        }
+
+        public String generateAccessToken(String username) {
+            return Jwts.builder()
+                        .subject(username)
+                        .issuedAt(new Date(System.currentTimeMillis()))
+                        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10)) // 10 minute
+                        .signWith(generateSecretKey())
+                        .compact();
+        }
+
+        public String generateRefreshToken(String username) {
+            return Jwts.builder()
+                        .subject(username)
+                        .issuedAt(new Date(System.currentTimeMillis()))
+                        .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
+                        .signWith(generateSecretKey())
+                        .compact();
+
+        }
+
+        public boolean validateToken(String token, String username) {
+            final String extractedUsername = getUsername(token);
+            final boolean isTokenExpired = extractAllClaims(token).getExpiration().before(new Date());
+            return (extractedUsername.equals(username) && !isTokenExpired);
+        }
+        public String getUsername(String token) {
+            return extractAllClaims(token).getSubject();
+        }
+        private Claims extractAllClaims(String token) {
+            return Jwts.parser()
+                        .verifyWith(generateSecretKey())
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload();
+        }
+    }
+    // AuthService.java
+    @Service
+    public class AuthService {
+        private final AuthenticationManager authenticationManager;
+        private final JWTService jwtService;
+
+        public AuthService(AuthenticationManager authenticationManager, JWTService jwtService) {
+            this.authenticationManager = authenticationManager;
+            this.jwtService = jwtService;
+        }
+
+        public LoginResponse login(LoginRequest loginRequest) {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+            
+            String accessToken = jwtService.generateAccessToken(loginRequest.getUsername());
+            String refreshToken = jwtService.generateRefreshToken(loginRequest.getUsername());
+
+            return new LoginResponse(loginRequest.getUsername(), accessToken, refreshToken);
+        }
+
+        public LoginResponse refreshToken(String refreshToken) {
+            String username = jwtService.getUsername(refreshToken);
+            
+            String accessToken = jwtService.generateAccessToken(username);
+
+            return new LoginResponse(username, accessToken, refreshToken);
+        }
+    }
+    // AuthController.java
+    @RestController
+    @RequestMapping("/auth")
+    public class AuthController {
+        private final AuthService authService;
+
+        public AuthController(AuthService authService) {
+            this.authService = authService;
+        }
+
+        @PostMapping("/login")
+        public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+
+            LoginResponse loginResponse = authService.login(loginRequest);
+
+            Cookie cookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
+            return ResponseEntity.ok(loginResponse);
+        }
+
+        @PostMapping("/refresh")
+        public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request) {
+            String refreshToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(cookie -> cookie.getValue())
+                .orElseThrow(()-> new AuthenticationServiceException("RefreshToken not found"));
+
+                LoginResponse loginResponse = authService.refreshToken(refreshToken);
+
+                return ResponseEntity.ok(loginResponse);
+        }
+    }
+    // LoginResponse.java
+    public class LoginResponse {
+        private String username;
+        private String accessToken;
+        private String refreshToken;
+    }
+    // User.java is the same as the previous example
+    // UserRepo.java is the same as the previous example
+    // CustomUserDetailsService.java is the same as the previous example
+    // LoginRequest.java is the same as the previous example
+    ```
+    **Initial Authentication :**  
+    - The client sends a username and password to the server.
+    - The server validates these credentials and requests the token service to generate an Access Token and a Refresh Token.
+    - The server returns both tokens to the client.
+
+    **Making API Requests :**  
+    - The client uses the Access Token to make a request to the server.
+    - If the Access Token is valid, the server fulfills the request.
+
+    **Access Token Expiration :**  
+    - When the Access Token expires, the client sends the Refresh Token to the server to request a new Access Token.
+    - The server verifies the Refresh Token with the token service, which generates a new Access Token.
+    - The server returns the new Access Token to the client.
+
+    **Continuing Requests :**  
+    - The client can continue using the newly generated Access Token to make further requests.
+
 ## Production Ready Features
 ### 1️⃣ Spring boot Dev tools
 Spring Boot DevTools is a development toolset designed to enhance the productivity of developers by providing features like automatic restart, live reload, and property overrides. It simplifies the process of testing and tweaking applications during development by automatically applying changes without requiring a manual restart.
