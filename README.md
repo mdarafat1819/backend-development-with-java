@@ -1753,7 +1753,7 @@ In Basic Auth, the client sends the username and password in every request. To a
     }
     ```
 
-### 3️⃣ Understanding JWT
+### 5️⃣ Understanding JWT
 A JSON Web Token(JWT) is a digitally signed token used to securely transmit information between parties in a compact format. It’s like a digital passport that allows users to access different parts of a web application **without having to repeatedly log in.** The token itself contains all the necessary information, and its signature ensures that the data has not been tampered with. This makes JWT a powerful tool for enabling stateless authentication, where the server doesn’t need to remember who you are, but can still trust the information you provide each time you interact with it.
 
 ```xml
@@ -2111,6 +2111,171 @@ When a user logs in, the server generates a JWT that contains user-specific info
 
     **Continuing Requests :**  
     - The client can continue using the newly generated Access Token to make further requests.
+### 6️⃣ OAuth2 Client Authentication
+OAuth2 is an authorization framework that allows third-party applications to gain limited access to an HTTP service on behalf of a user. It also supports delegated authentication using an external Authorization Server such as Google or GitHub.
+```xml
+<!-- Add Dependency -->
+<dependency>
+<groupId>org.springframework.boot</groupId>
+<artifactId>spring-boot-starter-oauth2-client</artifactId>
+</dependency>
+```
+**Key Components of OAuth2**  
+- Resource Owner: The end user who owns the protected data.
+- Client (Application): The application requesting access to resources (your Spring Boot app).
+- Authorization Server: Authenticates the user and issues access tokens (e.g., Google OAuth2 service).
+- Resource Server: Hosts protected resources and validates access tokens.  
+
+In this project, the Spring Boot application acts as both the client and the resource server by issuing and validating its own JWT tokens.
+
+**OAuth2 Flow in Spring Boot**  
+- **Client Registration:** Register your app with an OAuth2 provider (Google, GitHub) to obtain a client ID and client secret.
+- **User Authentication:** When the user accesses a protected resource, Spring Security redirects them to the provider’s login page.
+- **Authorization Code Exchange:** After successful login, the provider returns an authorization code to your app.
+- **Access Token Retrieval:** The Spring Security OAuth2 client exchanges the code for an access token.
+- **Access Granted:** The token authenticates the user for further requests.
+
+**Configuring Providers :**  
+In `application.properties`, register each OAuth2 provider under `spring.security.oauth2.client.registration`  
+For Google login:
+```xml
+spring.security.oauth2.client.registration.google.client-id=<GOOGLE_CLIENT_ID>
+spring.security.oauth2.client.registration.google.client-secret=<GOOGLE_CLIENT_SECRET>
+spring.security.oauth2.client.registration.google.scope=openid,profile,email
+```
+Replace `<GOOGLE_CLIENT_ID>` and `<GOOGLE_CLIENT_SECRET>` with values obtained from [Google’s API Console](https://console.cloud.google.com/apis).
+
+**Default OAuth2 Endpoints in Spring Security**
+- Authorization Request: http://localhost:8080/oauth2/authorization/{registrationId}
+- Callback (Redirect URI): http://localhost:8080/login/oauth2/code/{registrationId}
+
+**Important Notes:**  
+- Spring Security OAuth2 login is session-based by default, meaning it stores authentication in the HTTP session.
+- This behavior can be changed to stateless using JWT.
+- The `OAuth2SuccessHandler` is used to override the default behavior and return JWT tokens instead of redirecting to a UI page.
+
+```java
+// OAuth2SuccessHandler.java
+@Component
+@AllArgsConstructor
+public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    private final UserRepo userRepo;
+    private final JWTService jwtService;
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
+
+        OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+
+        DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) token.getPrincipal();
+
+        String email = defaultOAuth2User.getAttribute("email");
+        User user = userRepo.findByUsername(email); 
+
+        if (user == null) { // user with email id not present
+            User newUser = User
+                    .builder() // have to add @Builder in UserEntity
+                    .username(email)
+                    .password("$2a$12$nPbC026M6m2IAOnJ32IiDOvghs.kEHVJgpQQhuhGPIgD6vvWjqY1e") /* A default encoded password is assigned for OAuth users. In production, consider marking OAuth users differently and avoiding password usage.*/
+                    .role("USER")
+                    .build();
+            user = userRepo.save(newUser); // have to create a save method in service
+        }
+
+        String accessToken = jwtService.generateAccessToken(user.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true); // always add
+
+        response.addCookie(cookie);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        String jsonResponse = "{"
+                + "\"accessToken\":\"" + accessToken + "\","
+                + "\"refreshToken\":\"" + refreshToken + "\""
+                + "}";
+        response.getWriter().write(jsonResponse);
+        response.getWriter().flush();
+    }
+}
+
+// SecurityConfig.java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final JWTRequestFilter jwtRequestFilter;
+    private final CustomAuthEntryPoint customAuthEntryPoint;
+
+    public SecurityConfig(JWTRequestFilter jwtRequestFilter, OAuth2SuccessHandler oAuth2SuccessHandler,
+            CustomAuthEntryPoint customAuthEntryPoint) {
+        this.jwtRequestFilter = jwtRequestFilter;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+        this.customAuthEntryPoint = customAuthEntryPoint;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(basic -> basic.disable())
+                .formLogin(form -> form.disable())
+                // .exceptionHandling(ex -> ex
+                //        .authenticationEntryPoint(customAuthEntryPoint))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login", "/home")
+                        .permitAll()
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauthConfig -> oauthConfig
+                        .failureUrl("/login?error=true")
+                        .successHandler(oAuth2SuccessHandler));
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+}
+/*
+    To return JSON instead of the default login page, you must ENABLE the custom AuthenticationEntryPoint.
+*/
+//CustomAuthEntryPoint.java
+@Component
+public class CustomAuthEntryPoint implements AuthenticationEntryPoint {
+
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+            org.springframework.security.core.AuthenticationException authException)
+            throws IOException, ServletException {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"error\": \"Unauthorized\"}");
+    }
+}
+// AuthController.java is the same as the previous example
+// JWTRequestFilter.java is the same as the previous example
+// JWTService.java is the same as the previous example
+// OAuth2SuccessHandler.java is the same as the previous example
+// LoginRequest.java is the same as the previous example
+// LoginResponse.java is the same as the previous example
+// User.java is the same as the previous example
+// UserRepo is the same as the previous example
+// AuthService.java is the same as the previous example
+```
+This implementation integrates OAuth2 login with JWT-based authentication. After successful OAuth2 authentication, the system generates JWT tokens and returns them to the client, enabling stateless API communication.
 
 ## Production Ready Features
 ### 1️⃣ Spring boot Dev tools
