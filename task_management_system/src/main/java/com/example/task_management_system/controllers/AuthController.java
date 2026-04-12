@@ -1,7 +1,5 @@
 package com.example.task_management_system.controllers;
 
-import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +12,14 @@ import com.example.task_management_system.dto.UserRegistrationRequest;
 import com.example.task_management_system.dto.VerifyOtpRequest;
 import com.example.task_management_system.services.UserService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,10 +44,22 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
        AuthResponse authResponse = userService.login(request.getEmail(), request.getPassword());
+
+       Cookie cookie = new Cookie("refreshToken", authResponse.getToken().getRefreshToken());
+       cookie.setHttpOnly(true);
+       response.addCookie(cookie);
+       
        return ResponseEntity.ok(authResponse);
     }
+
+    @GetMapping("/refresh-token")
+    public ResponseEntity<AuthResponse> refreshToken(HttpServletRequest request) {
+        AuthResponse authResponse = userService.refreshToken(request);
+        return ResponseEntity.ok(authResponse);
+    }
+    
 
     @PostMapping("/verify-user-email")
     public ResponseEntity<AuthResponse> verifyAndActiveUser(@RequestBody VerifyOtpRequest request) {

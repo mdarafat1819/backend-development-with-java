@@ -1,12 +1,13 @@
 package com.example.task_management_system.services;
 
+import java.util.Arrays;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
-
 import com.example.task_management_system.dto.AuthResponse;
 import com.example.task_management_system.dto.UserRegistrationRequest;
 import com.example.task_management_system.dto.VerifyOtpRequest;
@@ -19,6 +20,7 @@ import com.example.task_management_system.repositories.UserRepository;
 import com.example.task_management_system.security.JwtUtil;
 import com.example.task_management_system.services.email.EmailOtpService;
 
+import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -69,9 +71,24 @@ public class UserService {
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password));
-        String token = jwtUtil.generateToken(email);
-        return new AuthResponse(true, "Logged in successfully.", token);
+
+        String accessToken = jwtUtil.generateAccessToken(email);
+        String refreshToken = jwtUtil.generateRefreshToken(email);
+
+        return new AuthResponse(true, "Logged in successfully.", new AuthResponse.Token(accessToken, refreshToken));
+    }
+
+    public AuthResponse refreshToken(jakarta.servlet.http.HttpServletRequest request) {
+        String refreshToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(cookie -> cookie.getValue())
+                .orElseThrow(() -> new AuthenticationServiceException("RefreshToken not found"));
+        Claims claims = jwtUtil.validateAndExtractClaims(refreshToken);
         
+        String accessToken = jwtUtil.generateAccessToken(claims.getSubject());
+
+        return new AuthResponse(true, "The access token has been successfully generated.", new AuthResponse.Token(accessToken, refreshToken));
     }
 
     @Transactional

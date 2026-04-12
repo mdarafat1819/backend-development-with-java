@@ -10,16 +10,22 @@ import lombok.Setter;
 public class AuthResponse {
     private boolean success;
     private String message;
-    private String token;
+    private Token token;
 
-    public AuthResponse(boolean success, String message, String token) {
+    public AuthResponse(boolean success, String message, Token token) {
         this.success = success;
         this.message = message;
         this.token = token;
     }
 
-    public AuthResponse orElseThrow(Object object) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
+    @Getter
+    @Setter
+    public static class Token {
+        private final String accessToken;
+        private final String refreshToken;
+        public Token(String accessToken, String refreshToken) {
+            this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
+        }
     }
 }
