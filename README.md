@@ -2139,11 +2139,11 @@ In this project, the Spring Boot application acts as both the client and the res
 In `application.properties`, register each OAuth2 provider under `spring.security.oauth2.client.registration`  
 For Google login:
 ```xml
-spring.security.oauth2.client.registration.google.client-id=<GOOGLE_CLIENT_ID>
-spring.security.oauth2.client.registration.google.client-secret=<GOOGLE_CLIENT_SECRET>
+spring.security.oauth2.client.registration.google.client-id=${GOOGLE_CLIENT_ID}
+spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET}
 spring.security.oauth2.client.registration.google.scope=openid,profile,email
 ```
-Replace `<GOOGLE_CLIENT_ID>` and `<GOOGLE_CLIENT_SECRET>` with values obtained from [Google’s API Console](https://console.cloud.google.com/apis).
+Replace `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` with values obtained from [Google’s API Console](https://console.cloud.google.com/apis).
 
 **Default OAuth2 Endpoints in Spring Security**
 - Authorization Request: http://localhost:8080/oauth2/authorization/{registrationId}
