@@ -7,6 +7,7 @@ import javax.security.sasl.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -113,6 +114,15 @@ public class GlobalExceptionHandler {
     HttpServletRequest request,
     BadCredentialsException ex
    ) {
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED.value()
+        , HttpStatus.UNAUTHORIZED.getReasonPhrase()
+        ,ex.getMessage(), request.getRequestURI());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+   }
+
+   @ExceptionHandler(AuthenticationServiceException.class)
+   public ResponseEntity<ErrorResponse> authenticationServiceException(HttpServletRequest request, AuthenticationServiceException ex) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED.value()
         , HttpStatus.UNAUTHORIZED.getReasonPhrase()
         ,ex.getMessage(), request.getRequestURI());

@@ -21,6 +21,7 @@ import com.example.task_management_system.security.JwtUtil;
 import com.example.task_management_system.services.email.EmailOtpService;
 
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -78,13 +79,16 @@ public class UserService {
         return new AuthResponse(true, "Logged in successfully.", new AuthResponse.Token(accessToken, refreshToken));
     }
 
-    public AuthResponse refreshToken(jakarta.servlet.http.HttpServletRequest request) {
+    public AuthResponse refreshToken(HttpServletRequest request) {
         String refreshToken = Arrays.stream(request.getCookies())
                 .filter(cookie -> "refreshToken".equals(cookie.getName()))
                 .findFirst()
                 .map(cookie -> cookie.getValue())
                 .orElseThrow(() -> new AuthenticationServiceException("RefreshToken not found"));
         Claims claims = jwtUtil.validateAndExtractClaims(refreshToken);
+
+        if (!"refresh".equals(claims.get("type"))) throw new AuthenticationServiceException("The given token is not a refresh token."
+        );
         
         String accessToken = jwtUtil.generateAccessToken(claims.getSubject());
 
@@ -102,7 +106,6 @@ public class UserService {
 
         if (status) {
             User user = modelMapper.map(tempUser, User.class);
-
             userRepository.save(user);
             emailOtpService.deleteOtp(request.getEmail());
             tempUserRepository.delete(tempUser);

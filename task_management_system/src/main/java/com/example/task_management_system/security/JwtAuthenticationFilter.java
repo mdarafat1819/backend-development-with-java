@@ -2,6 +2,7 @@ package com.example.task_management_system.security;
 
 import java.io.IOException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,6 +45,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String token = authHeader.substring(7);
 
                 Claims claims = jwtUtil.validateAndExtractClaims(token);
+
+                if(!"access".equals(claims.get("type"))) throw new AuthenticationServiceException("The given token is not access token");
+
                 String email = claims.getSubject();
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 

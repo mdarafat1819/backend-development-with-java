@@ -22,6 +22,7 @@ public class JwtUtil {
        
         return Jwts.builder()
                 .subject(email)
+                .claim("type", "access")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
                 .signWith(key)
@@ -31,6 +32,7 @@ public class JwtUtil {
     public String generateRefreshToken(String email) {
          return Jwts.builder()
                 .subject(email)
+                .claim("type", "refresh")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hour
                 .signWith(key)
