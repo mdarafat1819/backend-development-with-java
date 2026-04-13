@@ -3,9 +3,12 @@ package com.example.task_management_system.security;
 import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -26,11 +29,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil,
-            CustomUserDetailsService userDetailsService) {
+            CustomUserDetailsService userDetailsService, AuthenticationEntryPoint authenticationEntryPoint) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Override
@@ -46,7 +51,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 Claims claims = jwtUtil.validateAndExtractClaims(token);
 
-                if(!"access".equals(claims.get("type"))) throw new AuthenticationServiceException("The given token is not access token");
+                if (!"access".equals(claims.get("type")))
+                    throw new AuthenticationServiceException("The given token is not access token");
 
                 String email = claims.getSubject();
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -63,20 +69,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (Exception ex) {
+            SecurityContextHolder.clearContext();
+            
+            AuthenticationException authExp = (ex instanceof AuthenticationException) ? (AuthenticationException)ex : 
+                new BadCredentialsException(ex.getMessage(), ex);
 
-            ErrorResponse errorResponse = new ErrorResponse(
-                    HttpStatus.UNAUTHORIZED.value(),
-                    HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-                    ex.getMessage(),
-                    request.getRequestURI());
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-            String json = mapper.writeValueAsString(errorResponse);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write(json);
+            authenticationEntryPoint.commence(request, response, authExp);
+            return;
         }
     }
 }

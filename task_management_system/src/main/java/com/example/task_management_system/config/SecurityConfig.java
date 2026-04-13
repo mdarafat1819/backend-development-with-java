@@ -1,5 +1,10 @@
 package com.example.task_management_system.config;
 
+import com.example.task_management_system.advices.GlobalExceptionHandler;
+import com.example.task_management_system.security.CustomAuthEntryPoint;
+
+import java.util.logging.Logger;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +21,11 @@ import com.example.task_management_system.security.JwtAuthenticationFilter;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final CustomAuthEntryPoint customAuthEntryPoint;
+    SecurityConfig(CustomAuthEntryPoint customAuthEntryPoint) {
+        this.customAuthEntryPoint = customAuthEntryPoint;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,6 +47,7 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthEntryPoint))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/api/auth/register","/api/auth/verify-user-email","/api/auth/login", "/api/auth/refresh-token",
                         "/swagger-ui/**", "/v3/api-docs/**").permitAll()
