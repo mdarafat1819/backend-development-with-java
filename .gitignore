@@ -14,11 +14,13 @@
 *.jar
 *.war
 *.ear
+config.py
 
 # IDE files
 .vscode/
 .idea/
 *.iml
+venv/
 
 # Build folders
 target/
