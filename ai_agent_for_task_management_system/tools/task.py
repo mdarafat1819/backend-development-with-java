@@ -67,5 +67,31 @@ def get_all_task()->str:
             return f"Failed: {response.status_code} - {response.text}"
 
     except Exception as e:
-        print("from catch")
+        return f"Error: {str(e)}"
+
+@tool
+def get_task_by_id(id:int)->str:
+    """fetch the task by id."""
+    try:
+        response = api_request("get",f"/api/tasks{id}")
+
+        if response.status_code in [200, 201]:
+            return f"Task fetched successfully: {response.json()}"
+        else:
+            return f"Failed: {response.status_code} - {response.text}"
+
+    except Exception as e:
+        return f"Error: {str(e)}"
+    
+@tool
+def delete_task(id:int) -> str:
+    """Delete a task by its ID."""
+    try:
+        response = api_request("delete", f"/api/tasks/{id}")
+
+        if response.status_code in [200, 204]:
+            return f"Task deleted Successfully"
+        else:
+            return f"Failed: {response.status_code} - {response.text}"
+    except Exception as e:
         return f"Error: {str(e)}"

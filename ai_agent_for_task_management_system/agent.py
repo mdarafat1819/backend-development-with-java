@@ -19,7 +19,7 @@ model = ChatOpenRouter(
 
 agent = create_agent(
     model=model,
-    tools=[create_task, get_all_task, update_task],
+    tools=[create_task, get_all_task, get_task_by_id, update_task, delete_task],
     system_prompt="You are a helpful assistant."
 )
 
